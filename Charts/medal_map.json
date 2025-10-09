@@ -1,0 +1,82 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "World and continent-level medal map with graticule and ocean background.",
+    "width": 800,
+    "height": 450,
+    "projection": {
+      "type": "equalEarth",
+      "center": {
+        "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 20]"
+      },
+      "scale": {
+        "expr": "continentParam == 'World' ? 160 : continentParam == 'Africa' ? 280 : continentParam == 'Asia' ? 300 : continentParam == 'Europe' ? 520 : continentParam == 'North America' ? 280 : continentParam == 'South America' ? 320 : continentParam == 'Oceania' ? 500 : 160"
+      }
+    },
+    "params": [
+      {
+        "name": "medalParam",
+        "value": "Gold",
+        "bind": {"input": "select", "options": ["Gold", "Silver", "Bronze"], "name": "Medal: "}
+      },
+      {
+        "name": "continentParam",
+        "value": "World",
+        "bind": {"input": "select", "options": ["World","Africa","Asia","Europe","North America","South America","Oceania"], "name": "Continent: "}
+      }
+    ],
+    "layer": [
+      { "mark": {"type": "rect", "color": "#1cb8ec"} },
+      {
+        "data": {"graticule": {"step": [20, 20]}},
+        "mark": {"type": "geoshape", "stroke": "#b3cde0", "strokeWidth": 0.5}
+      },
+      {
+        "data": {
+          "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
+          "format": {"type": "topojson", "feature": "countries"}
+        },
+        "mark": {"type": "geoshape", "fill": "#f8f8f8", "stroke": "#999999", "strokeWidth": 0.3}
+      },
+      {
+        "data": {
+          "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country_medals.csv"
+        },
+        "transform": [
+          {"fold": ["Gold", "Silver", "Bronze"], "as": ["Medal", "Count"]},
+          {"filter": "datum.Medal === medalParam"},
+          {"calculate": "toNumber(datum.Count)", "as": "CountNum"},
+          {
+            "lookup": "Country",
+            "from": {
+              "data": {
+                "url": "https://cdn.jsdelivr.net/gh/gavinr/world-countries-centroids@v1/dist/countries.csv"
+              },
+              "key": "COUNTRY",
+              "fields": ["latitude", "longitude", "ISO"]
+            }
+          },
+          {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
+          {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
+        ],
+        "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
+        "encoding": {
+          "longitude": {"field": "longitude", "type": "quantitative"},
+          "latitude": {"field": "latitude", "type": "quantitative"},
+          "size": {"field": "CountNum", "type": "quantitative", "title": "Medals", "scale": {"range": [0, 1800], "domainMin": 0}},
+          "tooltip": [
+            {"field": "Country", "type": "nominal"},
+            {"field": "Continent", "type": "nominal"},
+            {"field": "Medal", "type": "nominal"},
+            {"field": "CountNum", "type": "quantitative", "title": "Count"}
+          ],
+          "color": {
+            "field": "Medal",
+            "type": "nominal",
+            "scale": {"domain": ["Gold", "Silver", "Bronze"], "range": ["#d4af37", "#c0c0c0", "#cd7f32"]},
+            "legend": null
+          }
+        }
+      }
+    ]
+  }
+  
