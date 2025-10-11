@@ -1,15 +1,16 @@
 {
     "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-    "description": "World and continent-level medal map with graticule and ocean background.",
+    "description": "World medal distribution",
     "width": 800,
     "height": 450,
+    "background": "#eaf6ff",
     "projection": {
-      "type": "equalEarth",
+      "type": "equirectangular",
       "center": {
-        "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 20]"
+        "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 0]"
       },
       "scale": {
-        "expr": "continentParam == 'World' ? 160 : continentParam == 'Africa' ? 280 : continentParam == 'Asia' ? 300 : continentParam == 'Europe' ? 520 : continentParam == 'North America' ? 280 : continentParam == 'South America' ? 320 : continentParam == 'Oceania' ? 500 : 160"
+        "expr": "continentParam == 'World' ? 130 : continentParam == 'Africa' ? 240 : continentParam == 'Asia' ? 260 : continentParam == 'Europe' ? 460 : continentParam == 'North America' ? 250 : continentParam == 'South America' ? 290 : continentParam == 'Oceania' ? 440 : 130"
       }
     },
     "params": [
@@ -25,17 +26,22 @@
       }
     ],
     "layer": [
-      { "mark": {"type": "rect", "color": "#1cb8ec"} },
+      { "mark": {"type": "rect", "color": "#eaf6ff"} },
       {
         "data": {"graticule": {"step": [20, 20]}},
-        "mark": {"type": "geoshape", "stroke": "#b3cde0", "strokeWidth": 0.5}
+        "mark": {"type": "geoshape", "stroke": "#bbd7f0", "strokeWidth": 0.6}
       },
       {
         "data": {
           "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
           "format": {"type": "topojson", "feature": "countries"}
         },
-        "mark": {"type": "geoshape", "fill": "#f8f8f8", "stroke": "#999999", "strokeWidth": 0.3}
+        "mark": {
+          "type": "geoshape",
+          "fill": "#e3e4e8",
+          "stroke": "#5c5c5c",
+          "strokeWidth": 0.5
+        }
       },
       {
         "data": {
@@ -58,11 +64,22 @@
           {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
           {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
         ],
-        "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
+        "mark": {"type": "circle", "opacity": 0.75, "stroke": "white"},
         "encoding": {
           "longitude": {"field": "longitude", "type": "quantitative"},
           "latitude": {"field": "latitude", "type": "quantitative"},
-          "size": {"field": "CountNum", "type": "quantitative", "title": "Medals", "scale": {"range": [0, 1800], "domainMin": 0}},
+          "size": {
+            "field": "CountNum",
+            "type": "quantitative",
+            "title": "Scale",
+            "legend": {
+              "orient": "right",
+              "direction": "vertical",
+              "titleFontSize": 12,
+              "labelFontSize": 11
+            },
+            "scale": {"range": [0, 1800], "domainMin": 0}
+          },
           "tooltip": [
             {"field": "Country", "type": "nominal"},
             {"field": "Continent", "type": "nominal"},
@@ -72,7 +89,14 @@
           "color": {
             "field": "Medal",
             "type": "nominal",
-            "scale": {"domain": ["Gold", "Silver", "Bronze"], "range": ["#d4af37", "#c0c0c0", "#cd7f32"]},
+            "scale": {
+              "domain": ["Gold", "Silver", "Bronze"],
+              "range": [
+                "#F5D953",  
+                "#1D6953",  
+                "#cd7f32"   
+              ]
+            },
             "legend": null
           }
         }
