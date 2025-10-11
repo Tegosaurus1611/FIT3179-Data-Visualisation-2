@@ -2,141 +2,328 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>Paris 2024 Summer Olympics</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>World Olympic medals – Vega‑Lite</title>
-  <!-- Vega & Vega-Lite -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
-    :root {
-      --bg: #0b132b;
-      --card: #ffffff;
+    body   {font-family: "Inter", "Helvetica Neue", Arial, sans-serif;}
+    h1, h2 { text-align: center; margin-bottom: 6px; }
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin: 0 auto 24px;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 750px;
+      word-wrap: break-word;
     }
-    body {
-      margin: 0; padding: 24px; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: #fff;
-      display: grid; place-items: center;
+    .chart-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 100px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    .card {
-      width: min(1100px, 100%);
-      background: var(--card);
-      color: #111;
-      border-radius: 18px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-      padding: 18px 20px 8px;
-    }
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; margin-bottom: 8px;
-    }
-    .header h1 { font-size: 20px; margin: 0; letter-spacing: .2px; }
-    #vis { width: 100%; }
-    .footer { font-size: 12px; color: #666; text-align: right; padding: 6px 2px 10px; }
-    @media (max-width: 720px) { .header h1 { font-size: 18px; } }
+    #vis, #mapVis { flex: 1; max-width: 800px; }
+    hr { border: none; border-top: 2px solid #eee; margin: 60px auto; width: 60%; }
   </style>
 </head>
+
 <body>
-  <div class="card">
-    <div class="header">
-      <h1>World Olympic medals</h1>
-    </div>
-    <div id="vis" aria-label="Interactive world map of Olympic medals"></div>
-    <div class="footer">Built with Vega-Lite</div>
+
+  <!-- 🌍 MAP SECTION -->
+  <h1>Paris 2024 Olympics — Season Summary</h1>
+  <p class="subtitle">
+    Explore how <em>gold, silver,</em> and <em>bronze</em> medals were distributed across countries at the Paris 2024 Summer Olympics.
+    Use the dropdowns to switch between medal types and zoom in on a continent. 
+  </p>
+  <div class="chart-row">
+    <div id="mapVis"></div>
   </div>
 
+  <hr />
+
+  <!-- 🏅 BAR CHART SECTION -->
+  <h2>Medal Winners by Gender — Compare Countries</h2>
+  <p class="subtitle">
+    Select any three countries to compare the distribution of medal winners by gender at Paris 2024.
+  </p>
+  <div class="chart-row">
+    <div id="vis"></div>
+  </div>
+
+  <!-- ---------- MAP SCRIPT ---------- -->
+  <script>
+    const mapSpec = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Paris 2024 medal distribution by country with Team USA annotation",
+  "width": 800,
+  "height": 450,
+  "background": "#eaf6ff",
+  "projection": {
+    "type": "equirectangular",
+    "center": {
+      "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 0]"
+    },
+    "scale": {
+      "expr": "continentParam == 'World' ? 130 : continentParam == 'Africa' ? 240 : continentParam == 'Asia' ? 260 : continentParam == 'Europe' ? 460 : continentParam == 'North America' ? 250 : continentParam == 'South America' ? 290 : continentParam == 'Oceania' ? 440 : 130"
+    }
+  },
+  "params": [
+    {
+      "name": "medalParam",
+      "value": "Gold",
+      "bind": {"input": "select", "options": ["Gold", "Silver", "Bronze"], "name": "Medal: "}
+    },
+    {
+      "name": "continentParam",
+      "value": "World",
+      "bind": {"input": "select", "options": ["World","Africa","Asia","Europe","North America","South America","Oceania"], "name": "Continent: "}
+    }
+  ],
+  "layer": [
+    { "mark": {"type": "rect", "color": "#eaf6ff"} },
+    {
+      "data": {"graticule": {"step": [20, 20]}},
+      "mark": {"type": "geoshape", "stroke": "#bbd7f0", "strokeWidth": 0.6}
+    },
+    {
+      "data": {
+        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
+        "format": {"type": "topojson", "feature": "countries"}
+      },
+      "mark": {
+        "type": "geoshape",
+        "fill": "#e3e4e8",
+        "stroke": "#5c5c5c",
+        "strokeWidth": 0.5
+      }
+    },
+    {
+      "data": {
+        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country_medals.csv"
+      },
+      "transform": [
+        {"fold": ["Gold", "Silver", "Bronze"], "as": ["Medal", "Count"]},
+        {"filter": "datum.Medal === medalParam"},
+        {"calculate": "toNumber(datum.Count)", "as": "CountNum"},
+        {
+          "lookup": "Country",
+          "from": {
+            "data": {
+              "url": "https://cdn.jsdelivr.net/gh/gavinr/world-countries-centroids@v1/dist/countries.csv"
+            },
+            "key": "COUNTRY",
+            "fields": ["latitude", "longitude", "ISO"]
+          }
+        },
+        {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
+        {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
+      ],
+      "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
+      "encoding": {
+        "longitude": {"field": "longitude", "type": "quantitative"},
+        "latitude": {"field": "latitude", "type": "quantitative"},
+        "size": {
+          "field": "CountNum",
+          "type": "quantitative",
+          "title": "Medals",
+          "legend": {"orient": "right", "direction": "vertical", "titleFontSize": 12, "labelFontSize": 11},
+          "scale": {"range": [0, 1800], "domainMin": 0}
+        },
+        "tooltip": [
+          {"field": "Country", "type": "nominal", "title": "Country"},
+          {"field": "Continent", "type": "nominal"},
+          {"field": "Medal", "type": "nominal"},
+          {"field": "CountNum", "type": "quantitative", "title": "Medal count"}
+        ],
+        "color": {
+          "field": "Medal",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Gold", "Silver", "Bronze"],
+            "range": ["#F7B21E", "#B0B7C3", "#cd7f32"]
+          },
+          "legend": null
+        }
+      }
+    },
+    {
+      "data": {
+        "values": [
+          {"longitude": -150, "latitude": 15, "label": "🏅 Team USA won the most total medals"}
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "baseline": "middle",
+        "dx": 7,
+        "dy": -25,
+        "fontSize": 13,
+        "fontWeight": "bold",
+        "color": "#333"
+      },
+      "encoding": {
+        "longitude": {"field": "longitude", "type": "quantitative"},
+        "latitude": {"field": "latitude", "type": "quantitative"},
+        "text": {"field": "label", "type": "nominal"}
+      }
+    }
+  ]
+}
+vegaEmbed("#mapVis", mapSpec);
+  </script>
+
+  <!-- ---------- BAR CHART SCRIPT ---------- -->
   <script>
     const spec = {
       "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "World and continent-level medal map with graticule and ocean background.",
-      "title": "World Olympic medals",
-      "width": 800,
-      "height": 450,
-      "projection": {
-        "type": "equalEarth",
-        "center": {
-          "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 20]"
-        },
-        "scale": {
-          "expr": "continentParam == 'World' ? 160 : continentParam == 'Africa' ? 280 : continentParam == 'Asia' ? 300 : continentParam == 'Europe' ? 520 : continentParam == 'North America' ? 280 : continentParam == 'South America' ? 320 : continentParam == 'Oceania' ? 500 : 160"
-        }
+      "description": "Paris 2024 medal winners by gender for selected countries.",
+      "data": {
+        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/medallists.csv",
+        "format": {"type": "csv"}
       },
+
       "params": [
         {
-          "name": "medalParam",
-          "value": "Gold",
-          "bind": {"input": "select", "options": ["Gold", "Silver", "Bronze"], "name": "Medal: "}
+          "name": "country1",
+          "value": "United States",
+          "bind": {
+            "input": "select",
+            "name": "Country 1: ",
+            "options": [
+              "United States","China","Japan","Australia","Great Britain","France","Germany",
+              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+            ]
+          }
         },
         {
-          "name": "continentParam",
-          "value": "World",
-          "bind": {"input": "select", "options": ["World","Africa","Asia","Europe","North America","South America","Oceania"], "name": "Continent: "}
-        }
-      ],
-      "layer": [
-        { "mark": {"type": "rect", "color": "#1cb8ec"} },
-        {
-          "data": {"graticule": {"step": [20, 20]}},
-          "mark": {"type": "geoshape", "stroke": "#b3cde0", "strokeWidth": 0.5}
+          "name": "country2",
+          "value": "China",
+          "bind": {
+            "input": "select",
+            "name": "Country 2: ",
+            "options": [
+              "United States","China","Japan","Australia","Great Britain","France","Germany",
+              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+            ]
+          }
         },
         {
-          "data": {
-            "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
-            "format": {"type": "topojson", "feature": "countries"}
-          },
-          "mark": {"type": "geoshape", "fill": "#f8f8f8", "stroke": "#999999", "strokeWidth": 0.3}
-        },
-        {
-          "data": {
-            "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country_medals.csv"
-          },
-          "transform": [
-            {"fold": ["Gold", "Silver", "Bronze"], "as": ["Medal", "Count"]},
-            {"filter": "datum.Medal === medalParam"},
-            {"calculate": "toNumber(datum.Count)", "as": "CountNum"},
-            {
-              "lookup": "Country",
-              "from": {
-                "data": {
-                  "url": "https://cdn.jsdelivr.net/gh/gavinr/world-countries-centroids@v1/dist/countries.csv"
-                },
-                "key": "COUNTRY",
-                "fields": ["latitude", "longitude", "ISO"]
-              }
-            },
-            {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
-            {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
-          ],
-          "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
-          "encoding": {
-            "longitude": {"field": "longitude", "type": "quantitative"},
-            "latitude": {"field": "latitude", "type": "quantitative"},
-            "size": {"field": "CountNum", "type": "quantitative", "title": "Medals", "scale": {"range": [0, 1800], "domainMin": 0}},
-            "tooltip": [
-              {"field": "Country", "type": "nominal"},
-              {"field": "Continent", "type": "nominal"},
-              {"field": "Medal", "type": "nominal"},
-              {"field": "CountNum", "type": "quantitative", "title": "Count"}
-            ],
-            "color": {
-              "field": "Medal",
-              "type": "nominal",
-              "scale": {"domain": ["Gold", "Silver", "Bronze"], "range": ["#d4af37", "#c0c0c0", "#cd7f32"]},
-              "legend": null
-            }
+          "name": "country3",
+          "value": "Japan",
+          "bind": {
+            "input": "select",
+            "name": "Country 3: ",
+            "options": [
+              "United States","China","Japan","Australia","Great Britain","France","Germany",
+              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+            ]
           }
         }
-      ]
-    };
+      ],
 
-    // Render the visualization
-    vegaEmbed('#vis', spec, { actions: { editor: true, source: true, export: true } })
-      .catch(err => {
-        console.error(err);
-        const el = document.getElementById('vis');
-        el.innerHTML = '<p style="color:#b00020">Failed to load the chart. Check the console for details.</p>';
-      });
+      "concat": [
+        {
+          "title": "Country 1",
+          "transform": [{"filter": "datum.country === country1"}],
+          "mark": {"type": "bar", "cornerRadiusEnd": 2},
+          "encoding": {
+            "x": {
+              "field": "gender",
+              "type": "nominal",
+              "sort": ["Male","Female"],
+              "axis": {"labelAngle": 0},
+              "title": null
+            },
+            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+            "color": {
+              "field": "gender",
+              "type": "nominal",
+              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
+              "legend": null
+            },
+            "tooltip": [
+              {"field": "country_long", "title": "Country"},
+              {"field": "gender", "title": "Gender"},
+              {"aggregate": "count", "title": "Medals"}
+            ]
+          },
+          "width": 240,
+          "height": 240
+        },
+        {
+          "title": "Country 2",
+          "transform": [{"filter": "datum.country === country2"}],
+          "mark": {"type": "bar", "cornerRadiusEnd": 2},
+          "encoding": {
+            "x": {
+              "field": "gender",
+              "type": "nominal",
+              "sort": ["Male","Female"],
+              "axis": {"labelAngle": 0},
+              "title": null
+            },
+            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+            "color": {
+              "field": "gender",
+              "type": "nominal",
+              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
+              "legend": null
+            },
+            "tooltip": [
+              {"field": "country_long", "title": "Country"},
+              {"field": "gender", "title": "Gender"},
+              {"aggregate": "count", "title": "Medals"}
+            ]
+          },
+          "width": 240,
+          "height": 240
+        },
+        {
+          "title": "Country 3",
+          "transform": [{"filter": "datum.country === country3"}],
+          "mark": {"type": "bar", "cornerRadiusEnd": 2},
+          "encoding": {
+            "x": {
+              "field": "gender",
+              "type": "nominal",
+              "sort": ["Male","Female"],
+              "axis": {"labelAngle": 0},
+              "title": null
+            },
+            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+            "color": {
+              "field": "gender",
+              "type": "nominal",
+              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
+              "legend": null
+            },
+            "tooltip": [
+              {"field": "country_long", "title": "Country"},
+              {"field": "gender", "title": "Gender"},
+              {"aggregate": "count", "title": "Medals"}
+            ]
+          },
+          "width": 240,
+          "height": 240
+        }
+      ],
+
+      "columns": 3,
+
+      "config": {
+        "view": {"stroke": null},
+        "axis": {"grid": false},
+        "title": {"fontSize": 14, "anchor": "start"}
+      }
+    };
+    vegaEmbed("#vis", spec);
   </script>
+
 </body>
 </html>
