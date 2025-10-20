@@ -1,0 +1,207 @@
+Country,Number_of_Athletes,Percent_of_Total
+United States of America,619,5.57
+France,600,5.4
+Australia,475,4.28
+Germany,457,4.11
+Japan,431,3.88
+Spain,401,3.61
+People's Republic of China,398,3.58
+Italy,397,3.57
+Great Britain,342,3.08
+Canada,332,2.99
+Brazil,290,2.61
+Netherlands,289,2.6
+Poland,226,2.03
+New Zealand,208,1.87
+Hungary,177,1.59
+Belgium,177,1.59
+Egypt,157,1.41
+Republic of Korea,147,1.32
+Argentina,143,1.29
+Ireland,143,1.29
+South Africa,141,1.27
+Ukraine,141,1.27
+Switzerland,137,1.23
+Denmark,131,1.18
+Sweden,125,1.13
+Serbia,114,1.03
+India,112,1.01
+Czechia,111,1
+Norway,109,0.98
+Mexico,108,0.97
+Türkiye,101,0.91
+Greece,100,0.9
+Romania,96,0.86
+Slovenia,95,0.86
+Israel,89,0.8
+Colombia,88,0.79
+Uzbekistan,88,0.79
+Nigeria,86,0.77
+Austria,84,0.76
+Kazakhstan,79,0.71
+Portugal,75,0.68
+Kenya,74,0.67
+Croatia,73,0.66
+Jamaica,65,0.59
+Morocco,61,0.55
+Cuba,61,0.55
+Chinese Taipei,60,0.54
+Dominican Republic,59,0.53
+Finland,57,0.51
+Thailand,52,0.47
+Lithuania,51,0.46
+Puerto Rico,51,0.46
+Azerbaijan,48,0.43
+Chile,48,0.43
+Algeria,46,0.41
+Bulgaria,46,0.41
+Islamic Republic of Iran,41,0.37
+Ecuador,40,0.36
+Refugee Olympic Team,37,0.33
+Fiji,36,0.32
+"Hong Kong, China",34,0.31
+Ethiopia,33,0.3
+AIN,32,0.29
+Mongolia,32,0.29
+Zambia,31,0.28
+Venezuela,31,0.28
+Paraguay,29,0.26
+Indonesia,29,0.26
+Latvia,29,0.26
+Georgia,28,0.25
+Slovakia,28,0.25
+Uruguay,27,0.24
+Malaysia,26,0.23
+Peru,26,0.23
+Tunisia,26,0.23
+Republic of Moldova,26,0.23
+Angola,25,0.23
+Uganda,25,0.23
+Guinea,25,0.23
+Estonia,24,0.22
+Mali,24,0.22
+Samoa,24,0.22
+Singapore,23,0.21
+Iraq,23,0.21
+Philippines,22,0.2
+Bahamas,19,0.17
+Montenegro,19,0.17
+Trinidad and Tobago,17,0.15
+Vietnam,16,0.14
+Kyrgyzstan,16,0.14
+Guatemala,16,0.14
+Armenia,15,0.14
+Cyprus,15,0.14
+Tajikistan,14,0.13
+Democratic People's Republic of Korea,14,0.13
+South Sudan,14,0.13
+Bahrain,14,0.13
+Botswana,14,0.13
+Luxembourg,13,0.12
+Côte d'Ivoire,13,0.12
+United Arab Emirates,13,0.12
+Qatar,13,0.12
+Mauritius,12,0.11
+Jordan,12,0.11
+Eritrea,11,0.1
+Senegal,11,0.1
+Kosovo,9,0.08
+Kuwait,9,0.08
+Ghana,9,0.08
+Lebanon,9,0.08
+Guam,8,0.07
+Palestine,8,0.07
+El Salvador,8,0.07
+Albania,8,0.07
+Liberia,8,0.07
+Burkina Faso,8,0.07
+Saudi Arabia,8,0.07
+Bermuda,8,0.07
+Panama,8,0.07
+Papua New Guinea,7,0.06
+Niger,7,0.06
+Haiti,7,0.06
+Burundi,7,0.06
+Madagascar,7,0.06
+Mozambique,7,0.06
+United Republic of Tanzania,7,0.06
+Rwanda,7,0.06
+Nepal,7,0.06
+Nicaragua,7,0.06
+Zimbabwe,7,0.06
+Pakistan,7,0.06
+Gambia,7,0.06
+Djibouti,7,0.06
+Cabo Verde,7,0.06
+North Macedonia,6,0.05
+Costa Rica,6,0.05
+Guinea-Bissau,6,0.05
+Vanuatu,6,0.05
+Monaco,6,0.05
+Afghanistan,6,0.05
+Turkmenistan,6,0.05
+Sri Lanka,6,0.05
+Libya,6,0.05
+Cameroon,6,0.05
+Syrian Arab Republic,6,0.05
+Aruba,6,0.05
+Grenada,6,0.05
+Democratic Republic of the Congo,6,0.05
+Bangladesh,5,0.05
+Bosnia and Herzegovina,5,0.05
+Iceland,5,0.05
+Togo,5,0.05
+Suriname,5,0.05
+Antigua and Barbuda,5,0.05
+Maldives,5,0.05
+Gabon,5,0.05
+Benin,5,0.05
+San Marino,5,0.05
+Malta,5,0.05
+Guyana,5,0.05
+"Virgin Islands, US",5,0.05
+Congo,4,0.04
+Saint Lucia,4,0.04
+Marshall Islands,4,0.04
+Sudan,4,0.04
+Lao People's Democratic Republic,4,0.04
+Honduras,4,0.04
+Barbados,4,0.04
+"Virgin Islands, British",4,0.04
+Comoros,4,0.04
+Namibia,4,0.04
+Bolivia,4,0.04
+Democratic Republic of Timor-Leste,4,0.04
+Cayman Islands,4,0.04
+Central African Republic,4,0.04
+Yemen,4,0.04
+St Vincent and the Grenadines,4,0.04
+Oman,4,0.04
+Dominica,4,0.04
+Sierra Leone,4,0.04
+Tonga,4,0.04
+Palau,3,0.03
+Equatorial Guinea,3,0.03
+Seychelles,3,0.03
+Chad,3,0.03
+Kiribati,3,0.03
+Lesotho,3,0.03
+Federated States of Micronesia,3,0.03
+Sao Tome and Principe,3,0.03
+Cambodia,3,0.03
+Saint Kitts and Nevis,3,0.03
+Malawi,3,0.03
+Eswatini,3,0.03
+Bhutan,3,0.03
+Brunei Darussalam,3,0.03
+Mauritania,2,0.02
+Tuvalu,2,0.02
+Myanmar,2,0.02
+Cook Islands,2,0.02
+American Samoa,2,0.02
+Solomon Islands,2,0.02
+Andorra,2,0.02
+Nauru,1,0.01
+Liechtenstein,1,0.01
+Somalia,1,0.01
+Belize,1,0.01
