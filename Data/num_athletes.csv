@@ -5,9 +5,9 @@ Australia,475,4.28
 Germany,457,4.11
 Japan,431,3.88
 Spain,401,3.61
-People's Republic of China,398,3.58
+China,398,3.58
 Italy,397,3.57
-Great Britain,342,3.08
+United Kingdom,342,3.08
 Canada,332,2.99
 Brazil,290,2.61
 Netherlands,289,2.6
@@ -146,7 +146,7 @@ Cameroon,6,0.05
 Syrian Arab Republic,6,0.05
 Aruba,6,0.05
 Grenada,6,0.05
-Democratic Republic of the Congo,6,0.05
+Dem. Rep. Congo,6,0.05
 Bangladesh,5,0.05
 Bosnia and Herzegovina,5,0.05
 Iceland,5,0.05
@@ -204,4 +204,5 @@ Andorra,2,0.02
 Nauru,1,0.01
 Liechtenstein,1,0.01
 Somalia,1,0.01
+
 Belize,1,0.01
