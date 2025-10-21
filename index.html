@@ -1,584 +1,281 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Paris 2024 Summer Olympics</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paris Olympics 2024 — Story Dashboard</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Vega & Vega-Lite scripts -->
   <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+
   <style>
-    body   {font-family: "Inter", "Helvetica Neue", Arial, sans-serif;}
-    h1, h2 { text-align: center; margin-bottom: 6px; }
-    .subtitle {
-      text-align: center;
-      color: #666;
-      margin: 0 auto 24px;
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 750px;
-      word-wrap: break-word;
+    :root{
+      --brand:#1c1785;
+      --brand-dark:#0b0a4b;
+      --bg:#ffffff;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --radius:16px;
+      --shadow:0 8px 24px rgba(2, 6, 23, 0.08);
     }
-    .chart-row {
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sora', sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 40%);
+      color: #0f172a;
+    }
+
+    .dashboard-container {
+      border: 4px solid var(--brand);
+      border-radius: 16px;
+      width: 85%;
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 50px 70px;
+      box-sizing: border-box;
+      background-color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    /* ✨ Keep heading exactly the same */
+    .olympic-heading {
+      position: relative;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      gap: 100px;
-      max-width: 1100px;
-      margin: 0 auto;
+      align-items: center;
+      text-align: center;
+      font-size: 60px;
+      font-weight: 600;
+      color: var(--brand-dark);
+      margin-bottom: 60px;
+      letter-spacing: -0.02em;
+      z-index: 0;
     }
-    #vis, #mapVis, #eventsVis, #ageVis, #radarVis { flex: 1; max-width: 950px; }
-    hr { border: none; border-top: 2px solid #eee; margin: 60px auto; width: 60%; }
+    .olympic-heading img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 280px;
+      opacity: 0.25;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+    .heading-text { display: flex; align-items: center; gap: 18px; }
+    .heading-text .dot {
+      width: 10px; height: 10px; background-color: var(--brand); border-radius: 50%;
+      box-shadow: 12px 0 0 var(--brand), -12px 0 0 var(--brand);
+      opacity: 0.85; animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.3);opacity:1} }
+
+    .section { margin: 60px 0; }
+
+    .section p {
+      font-size: 17px;
+      max-width: 650px;
+      font-family: 'Sora', sans-serif;
+      color: var(--muted);
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    /* New: small left-justified viz headings matching text width */
+    .viz-heading {
+      font-size: 18px;
+      font-weight: "bold";
+      line-height: 1.3;
+      margin: 6px 0 10px;
+      font-family: 'Sora', sans-serif;
+      max-width: 650px;
+      text-align: left;
+      color: #0f172a;
+    }
+
+    .vis-container {
+      display: block;
+      width: 100%;
+      max-width: 650px;
+      margin: 0;
+      padding: 0;
+      min-height: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      text-align: left;
+    }
+
+    .vis-container .vega-embed,
+    .vis-container canvas,
+    .vis-container svg {
+      display: block;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .note {
+      border: 1px solid #c7d2fe;
+      background: #eef2ff;
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgba(99,102,241,.12);
+    }
+
+    /* Nudge the note slightly left */
+    .grid .note {
+      margin-left: -10px;  /* adjust to -8px or -12px as desired */
+    }
+
+    .note[contenteditable="true"] {
+      outline: none;
+      min-height: 140px;
+      border: 1px dashed #a5b4fc;
+      border-radius: 10px;
+      padding: 10px;
+      background: #ffffffc0;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    @media (max-width: 960px) {
+      .olympic-heading { font-size: 40px; }
+      .grid { grid-template-columns: 1fr; }
+      .dashboard-container { padding: 40px 30px; }
+      .vis-container, .section p, .viz-heading { max-width: 100%; }
+      .grid .note { margin-left: 0; } /* reset on mobile */
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- 🌍 MAP SECTION (unchanged) -->
-  <h1>Paris 2024 Olympics — Season Summary</h1>
-  <p class="subtitle">
-    Explore how <em>gold, silver,</em> and <em>bronze</em> medals were distributed across countries at the Paris 2024 Summer Olympics.
-    Use the dropdowns to switch between medal types and zoom in on a continent. 
-  </p>
-  <div class="chart-row">
-    <div id="mapVis"></div>
+  <div class="dashboard-container">
+
+    <!-- ✨ Beautifully centered original heading (unchanged) -->
+    <div class="olympic-heading">
+      <img src="rings.png" alt="Olympic Rings">
+      <div class="heading-text">
+        <span class="dot"></span>
+        Paris Olympics 2024
+        <span class="dot"></span>
+      </div>
+    </div>
+
+    <!-- Storyline sections -->
+    <div class="section">
+      <p>
+        In <b>2024 Paris</b> hosted the <span style="color: rgb(43, 64, 203);">30th Summer Olympic games</span> from July 26th to August 2nd.
+        Athletes from around travelled to compete in a variety of sports across <span style="color: rgb(43, 64, 203);">48 disciplines</span>.
+      </p>
+
+      <p>
+        Including the practices, heats, elimination rounds, semis and finals the 2024 Olympics had around 3000 watchable events. The heatmap below outlines the daily event schedule by discipline.
+      </p>
+
+      <div id="vis1" class="vis-container"></div>
+    </div>
+
+    <div class="section">
+      <p>Although the Olympics have many events, <i>not all events are medal-winning events</i>. Certain sports such as <span style="color: rgb(43, 64, 203);">Athletics and Swimming</span> have many more medal winning events compared to sports like Golf and Volleyball. </p>
+
+      <p>Medal winning events can also be broken down by <span style="color: rgb(203, 43, 192);">gen</span><span style="color: rgb(43, 64, 203);">der</span>. Explore and compare the breakdown of medal winning events by discipline below! </p>
+
+      <div id="vis2" class="vis-container"></div>
+    </div>
+
+    <div class="section">
+      <p>The proportional symbol map displays medal counts geographically by country.</p>
+      <h3 class="viz-heading">Proportional Symbol Map</h3>
+      <div id="vis3" class="vis-container"></div>
+    </div>
+
+    <div class="section grid">
+      <div>
+        <h3 class="viz-heading">Athlete Profiles — Radar</h3>
+        <div id="vis4" class="vis-container"></div>
+      </div>
+      <div class="note" contenteditable="true">
+        <strong>Story Notes — Athlete Profiles:</strong><br>
+        Write your insights here: highlight standout strengths, patterns across sports, or unique national profiles.
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>The stacked bar chart visualizes the distribution of medals across sports categories.</p>
+        <h3 class="viz-heading">Choropleth — Share of Total Athletes</h3>
+        <div id="vis7" class="vis-container"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>The stacked bar chart visualizes the distribution of medals across sports categories.</p>
+        <h3 class="viz-heading">Stacked Medals by Sport</h3>
+        <div id="vis5" class="vis-container"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>The side-by-side bar chart compares male and female athlete performances across nations.</p>
+        <h3 class="viz-heading">Male vs Female Performance breakdown</h3>
+        <div id="vis6" class="vis-container"></div>
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2024 Paris Olympics Data Visualizations. All rights reserved.
+    </footer>
   </div>
 
-  <hr />
+  <script type="text/javascript">
+    var specVis1 = "charts/heatmap.json";
+    var specVis2 = "charts/area_chart.json";
+    var specVis3 = "charts/proportional_symbol_map.json";
+    var specVis4 = "charts/radar.json";
+    var specVis5 = "charts/stacked_bar.json";
+    var specVis6 = "charts/side-by-side_barchart.json";
+    var specVis7 = "charts/chlmap.json";
 
-  <!-- 🏅 BAR CHART SECTION (unchanged) -->
-  <h2>Medal Winners by Gender</h2>
-  <p class="subtitle">
-    Select any three countries to compare the distribution of medal winners by gender!
-  </p>
-  <div class="chart-row">
-    <div id="vis"></div>
-  </div>
-
-  <hr />
-
-  <!-- 🧭 STORY BEAT 1 -->
-  <h2>What's popular at the Olympics?</h2>
-  <p class="subtitle">
-    Not all sports have the same number of events. In fact Atheletics and Swimming are the most popular Sports
-    with the most number of events. Use the filter option to explore the number of events per sport by gender!
-  </p>
-  <div class="chart-row">
-    <div id="eventsVis"></div>
-  </div>
-
-  <hr />
-
-  <!-- 🧭 STORY BEAT 2 -->
-  <h2>Achievers of all ages</h2>
-  <p class="subtitle">
-    A total of 10,500 Olympic athlets and 4,400 Paralympic athletes competed at the Paris Olympics in 2024. 
-    Use the filter below to explore the age distribution of atheles from all participating countries. 
-  </p>
-  <div class="chart-row">
-    <div id="ageVis"></div>
-  </div>
-
-  <hr />
-
-  <!-- 🧭 STORY BEAT 3 -->
-  <h2>The high performers</h2>
-  <p class="subtitle">
-    At the paris olympics 5 countries out-performed the rest - USA, China, Great Britain, Japan and Australia. 
-    Compare the medal performance of these countries using the radar chart below!
-  </p>
-  <div class="chart-row">
-    <div id="radarVis"></div>
-  </div>
-
-  <!-- ---------- MAP SCRIPT (unchanged) ---------- -->
-  <script>
-    const mapSpec = {
-  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-  "description": "Paris 2024 medal distribution by country with Team USA annotation",
-  "width": 800,
-  "height": 450,
-  "background": "#eaf6ff",
-  "projection": {
-    "type": "equirectangular",
-    "center": {
-      "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 0]"
-    },
-    "scale": {
-      "expr": "continentParam == 'World' ? 130 : continentParam == 'Africa' ? 240 : continentParam == 'Asia' ? 260 : continentParam == 'Europe' ? 460 : continentParam == 'North America' ? 250 : continentParam == 'South America' ? 290 : continentParam == 'Oceania' ? 440 : 130"
-    }
-  },
-  "params": [
-    {
-      "name": "medalParam",
-      "value": "Gold",
-      "bind": {"input": "select", "options": ["Gold", "Silver", "Bronze"], "name": "Medal: "}
-    },
-    {
-      "name": "continentParam",
-      "value": "World",
-      "bind": {"input": "select", "options": ["World","Africa","Asia","Europe","North America","South America","Oceania"], "name": "Continent: "}
-    }
-  ],
-  "layer": [
-    { "mark": {"type": "rect", "color": "#eaf6ff"} },
-    {
-      "data": {"graticule": {"step": [20, 20]}},
-      "mark": {"type": "geoshape", "stroke": "#bbd7f0", "strokeWidth": 0.6}
-    },
-    {
-      "data": {
-        "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
-        "format": {"type": "topojson", "feature": "countries"}
-      },
-      "mark": {
-        "type": "geoshape",
-        "fill": "#e3e4e8",
-        "stroke": "#5c5c5c",
-        "strokeWidth": 0.5
-      }
-    },
-    {
-      "data": {
-        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country_medals.csv"
-      },
-      "transform": [
-        {"fold": ["Gold", "Silver", "Bronze"], "as": ["Medal", "Count"]},
-        {"filter": "datum.Medal === medalParam"},
-        {"calculate": "toNumber(datum.Count)", "as": "CountNum"},
-        {
-          "lookup": "Country",
-          "from": {
-            "data": {
-              "url": "https://cdn.jsdelivr.net/gh/gavinr/world-countries-centroids@v1/dist/countries.csv"
-            },
-            "key": "COUNTRY",
-            "fields": ["latitude", "longitude", "ISO"]
-          }
-        },
-        {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
-        {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
-      ],
-      "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
-      "encoding": {
-        "longitude": {"field": "longitude", "type": "quantitative"},
-        "latitude": {"field": "latitude", "type": "quantitative"},
-        "size": {
-          "field": "CountNum",
-          "type": "quantitative",
-          "title": "Medals",
-          "legend": {"orient": "right", "direction": "vertical", "titleFontSize": 12, "labelFontSize": 11},
-          "scale": {"range": [0, 1800], "domainMin": 0}
-        },
-        "tooltip": [
-          {"field": "Country", "type": "nominal", "title": "Country"},
-          {"field": "Continent", "type": "nominal"},
-          {"field": "Medal", "type": "nominal"},
-          {"field": "CountNum", "type": "quantitative", "title": "Medal count"}
-        ],
-        "color": {
-          "field": "Medal",
-          "type": "nominal",
-          "scale": {
-            "domain": ["Gold", "Silver", "Bronze"],
-            "range": ["#F7B21E", "#B0B7C3", "#cd7f32"]
-          },
-          "legend": null
-        }
-      }
-    },
-    {
-      "data": {
-        "values": [
-          {"longitude": -150, "latitude": 15, "label": "🏅 Team USA won the most total medals"}
-        ]
-      },
-      "mark": {
-        "type": "text",
-        "align": "left",
-        "baseline": "middle",
-        "dx": 7,
-        "dy": -25,
-        "fontSize": 13,
-        "fontWeight": "bold",
-        "color": "#333"
-      },
-      "encoding": {
-        "longitude": {"field": "longitude", "type": "quantitative"},
-        "latitude": {"field": "latitude", "type": "quantitative"},
-        "text": {"field": "label", "type": "nominal"}
-      }
-    }
-  ]
-}
-vegaEmbed("#mapVis", mapSpec);
-  </script>
-
-  <!-- ---------- BAR CHART SCRIPT (unchanged) ---------- -->
-  <script>
-    const spec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "description": "Paris 2024 medal winners by gender for selected countries.",
-      "data": {
-        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/medallists.csv",
-        "format": {"type": "csv"}
-      },
-
-      "params": [
-        {
-          "name": "country1",
-          "value": "United States",
-          "bind": {
-            "input": "select",
-            "name": "Country 1: ",
-            "options": [
-              "United States","China","Japan","Australia","Great Britain","France","Germany",
-              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
-            ]
-          }
-        },
-        {
-          "name": "country2",
-          "value": "China",
-          "bind": {
-            "input": "select",
-            "name": "Country 2: ",
-            "options": [
-              "United States","China","Japan","Australia","Great Britain","France","Germany",
-              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
-            ]
-          }
-        },
-        {
-          "name": "country3",
-          "value": "Japan",
-          "bind": {
-            "input": "select",
-            "name": "Country 3: ",
-            "options": [
-              "United States","China","Japan","Australia","Great Britain","France","Germany",
-              "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
-            ]
-          }
-        }
-      ],
-
-      "concat": [
-        {
-          "title": "Country 1",
-          "transform": [{"filter": "datum.country === country1"}],
-          "mark": {"type": "bar", "cornerRadiusEnd": 2},
-          "encoding": {
-            "x": {
-              "field": "gender",
-              "type": "nominal",
-              "sort": ["Male","Female"],
-              "axis": {"labelAngle": 0},
-              "title": null
-            },
-            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
-            "color": {
-              "field": "gender",
-              "type": "nominal",
-              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
-              "legend": null
-            },
-            "tooltip": [
-              {"field": "country_long", "title": "Country"},
-              {"field": "gender", "title": "Gender"},
-              {"aggregate": "count", "title": "Medals"}
-            ]
-          },
-          "width": 240,
-          "height": 240
-        },
-        {
-          "title": "Country 2",
-          "transform": [{"filter": "datum.country === country2"}],
-          "mark": {"type": "bar", "cornerRadiusEnd": 2},
-          "encoding": {
-            "x": {
-              "field": "gender",
-              "type": "nominal",
-              "sort": ["Male","Female"],
-              "axis": {"labelAngle": 0},
-              "title": null
-            },
-            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
-            "color": {
-              "field": "gender",
-              "type": "nominal",
-              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
-              "legend": null
-            },
-            "tooltip": [
-              {"field": "country_long", "title": "Country"},
-              {"field": "gender", "title": "Gender"},
-              {"aggregate": "count", "title": "Medals"}
-            ]
-          },
-          "width": 240,
-          "height": 240
-        },
-        {
-          "title": "Country 3",
-          "transform": [{"filter": "datum.country === country3"}],
-          "mark": {"type": "bar", "cornerRadiusEnd": 2},
-          "encoding": {
-            "x": {
-              "field": "gender",
-              "type": "nominal",
-              "sort": ["Male","Female"],
-              "axis": {"labelAngle": 0},
-              "title": null
-            },
-            "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
-            "color": {
-              "field": "gender",
-              "type": "nominal",
-              "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
-              "legend": null
-            },
-            "tooltip": [
-              {"field": "country_long", "title": "Country"},
-              {"field": "gender", "title": "Gender"},
-              {"aggregate": "count", "title": "Medals"}
-            ]
-          },
-          "width": 240,
-          "height": 240
-        }
-      ],
-
-      "columns": 3,
-
-      "config": {
-        "view": {"stroke": null},
-        "axis": {"grid": false},
-        "title": {"fontSize": 14, "anchor": "start"}
+    const opts = {
+      actions: false,
+      config: {
+        font: "Sora",
+        axis: { labelFont: "Sora", titleFont: "Sora" },
+        legend: { labelFont: "Sora", titleFont: "Sora" },
+        header: { labelFont: "Sora", titleFont: "Sora" },
+        title: { font: "Sora" }
       }
     };
-    vegaEmbed("#vis", spec);
-  </script>
 
-  <!-- ---------- NEW: EVENTS PER SPORT (converted to VL v5 schema for compatibility) ---------- -->
-  <script>
-    const eventsSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": "Number of Olympic Events per Sport (stacked by gender type)",
-      "width": 950,
-      "height": 360,
-      "data": {
-        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/events.csv",
-        "format": {"type": "csv"}
-      },
-      "params": [
-        {
-          "name": "Sports",
-          "value": 20,
-          "bind": {"input": "select", "options": [10, 20, 30, 50, 100, 9999], "labels": ["Top 10","Top 20","Top 30","Top 50","Top 100","All"]}
-        }
-      ],
-      "transform": [
-        {"filter": "datum.sport && datum.sport !== ''"},
-        {"calculate": "test(/mixed/i, datum.event) ? 'Mixed' : test(/women|women\\'s/i, datum.event) ? 'Women' : test(/men|men\\'s/i, datum.event) ? 'Men' : 'Open/Other'", "as": "gender_type"},
-        {"aggregate": [{"op": "count", "as": "events"}], "groupby": ["sport", "gender_type"]},
-        {"joinaggregate": [{"op": "sum", "field": "events", "as": "total_events"}], "groupby": ["sport"]},
-        {"window": [{"op": "rank", "as": "rank"}], "sort": [{"field": "total_events", "order": "descending"}, {"field": "sport", "order": "ascending"}]},
-        {"filter": "datum.rank <= Sports"},
-        {"impute": "events", "key": "gender_type", "groupby": ["sport"], "value": 0}
-      ],
-      "mark": {"type": "area"},
-      "encoding": {
-        "x": {"field": "sport", "type": "ordinal", "sort": {"field": "total_events", "order": "descending"}, "axis": {"labelAngle": -45, "title": "Sport"}},
-        "y": {"field": "events", "type": "quantitative", "title": "Number of Events"},
-        "color": {"field": "gender_type", "type": "nominal", "title": "Gender Type", "scale": {"scheme": "set2"}},
-        "tooltip": [
-          {"field": "sport", "title": "Sport"},
-          {"field": "gender_type", "title": "Gender Type"},
-          {"field": "events", "title": "Events"},
-          {"field": "total_events", "title": "Total (sport)"}
-        ],
-        "order": {"field": "gender_type"}
-      },
-      "view": {"stroke": null}
-    };
-    vegaEmbed('#eventsVis', eventsSpec);
-  </script>
-
-  <!-- ---------- NEW: ATHLETES BY AGE (kept VL v5 schema) ---------- -->
-  <script>
-    const ageSpec = {
-      "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-      "title": "Athletes by Age Category and Gender (Filter by Country)",
-      "data": {
-        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/athletes.csv",
-        "format": {"type": "csv"}
-      },
-      "params": [
-        {
-          "name": "Country",
-          "value": "All",
-          "bind": {"input": "select", "options": [
-          "All",
-          "Algeria","Angola","Benin","Botswana","Burkina Faso","Burundi","Cameroon","Cabo Verde",
-          "Central African Republic","Chad","Comoros","Congo","Democratic Republic of the Congo",
-          "Côte d’Ivoire","Djibouti","Egypt","Eritrea","Eswatini","Ethiopia","Gabon","Gambia",
-          "Ghana","Guinea","Guinea-Bissau","Equatorial Guinea","Kenya","Lesotho","Liberia","Libya",
-          "Madagascar","Malawi","Mali","Morocco","Mauritius","Mauritania","Mozambique","Namibia",
-          "Niger","Nigeria","Uganda","Rwanda","Sao Tome and Principe","Senegal","Seychelles",
-          "Sierra Leone","Somalia","South Africa","South Sudan","Sudan","United Republic of Tanzania",
-          "Togo","Tunisia","Zambia","Zimbabwe",
-          "Antigua and Barbuda","Argentina","Aruba","Bahamas","Barbados","Belize","Bermuda","Bolivia",
-          "Brazil","Cayman Islands","Canada","Chile","Colombia","Costa Rica","Cuba",
-          "Dominican Republic","Dominica","El Salvador","Ecuador","Grenada","Guatemala","Guyana",
-          "Haiti","Honduras","Jamaica","Mexico","Nicaragua","Panama","Paraguay","Peru","Puerto Rico",
-          "Saint Kitts and Nevis","Saint Lucia","St. Vincent and the Grenadines","Suriname",
-          "Trinidad and Tobago","United States of America","Uruguay","Venezuela",
-          "Virgin Islands, British","Virgin Islands, US",
-          "Afghanistan","Bahrain","Bangladesh","Bhutan","Brunei Darussalam","Cambodia",
-          "People’s Republic of China","Republic of Korea","Hong Kong, China","India","Indonesia",
-          "Islamic Republic of Iran","Iraq","Japan","Jordan","Kazakhstan","Kyrgyzstan","Kuwait",
-          "Lao People’s Democratic Republic","Lebanon","Malaysia","Maldives","Mongolia","Myanmar",
-          "Nepal","Oman","Pakistan","Palestine","Philippines","Qatar",
-          "Democratic People’s Republic of Korea","Saudi Arabia","Singapore","Sri Lanka",
-          "Syrian Arab Republic","Tajikistan","Chinese Taipei","Thailand",
-          "Democratic Rep. of Timor-Leste","Turkmenistan","United Arab Emirates","Uzbekistan",
-          "Vietnam","Yemen",
-          "Albania","Andorra","Armenia","Austria","Azerbaijan","Belgium","Bosnia and Herzegovina",
-          "Bulgaria","Cyprus","Croatia","Czechia","Denmark","Spain","Estonia","Finland","France",
-          "Georgia","Germany","Great Britain","Greece","Hungary","Ireland","Iceland","Israel","Italy",
-          "Kosovo","Latvia","Liechtenstein","Lithuania","Luxembourg","North Macedonia","Malta",
-          "Republic of Moldova","Monaco","Montenegro","Netherlands","Norway","Poland","Portugal",
-          "Romania","San Marino","Serbia","Slovakia","Slovenia","Sweden","Switzerland","Türkiye",
-          "Ukraine",
-          "American Samoa","Australia","Cook Islands","Fiji","Guam","Kiribati","Marshall Islands",
-          "Federated States of Micronesia","Nauru","New Zealand","Palau","Papua New Guinea",
-          "Solomon Islands","Samoa","Tonga","Tuvalu","Vanuatu"
-        ]}
-        }
-      ],
-      "transform": [
-        {"filter": "Country == 'All' || datum.country_full == Country"},
-        {"calculate": "timeParse(datum.birth_date, '%d/%m/%Y')", "as": "bdate"},
-        {"calculate": "(toDate('2024-06-30') - datum.bdate) / (1000*60*60*24*365.25)", "as": "age"},
-        {"calculate": "datum.age < 15 ? 'Under 15' : datum.age <= 20 ? '15-20' : datum.age <= 25 ? '21-25' : datum.age <= 30 ? '26-30' : datum.age <= 35 ? '31-35' : datum.age <= 40 ? '36-40' : datum.age <= 45 ? '41-45' : datum.age <= 50 ? '46-50' : '51+'", "as": "age_cat"},
-        {"aggregate": [{"op": "count", "as": "Athletes"}], "groupby": ["age_cat", "gender"]},
-        {"impute": "Athletes", "key": "age_cat", "groupby": ["gender"], "value": 0}
-      ],
-      "mark": {"type": "bar"},
-      "encoding": {
-        "x": {"field": "age_cat", "type": "ordinal", "title": "Age Category", "scale": {"domain": ["Under 15","15-20","21-25","26-30","31-35","36-40","41-45","46-50","51+"]}},
-        "y": {"field": "Athletes", "type": "quantitative", "title": "Total Athletes"},
-        "color": {"field": "gender", "type": "nominal", "title": "Gender"},
-        "tooltip": [
-          {"field": "age_cat", "title": "Age Category"},
-          {"field": "gender", "title": "Gender"},
-          {"field": "Athletes", "title": "No.of Athletes"}
-        ],
-        "order": {"field": "gender", "type": "nominal"}
-      }
-    };
-    vegaEmbed('#ageVis', ageSpec);
-  </script>
-
-  <!-- ---------- NEW: RADAR (Vega spec, aligned to Vega v5 schema) ---------- -->
-  <script>
-    const radarSpec = {
-      "$schema": "https://vega.github.io/schema/vega/v5.json",
-      "description": "Radar chart of Olympic stats by country with checkboxes, numeric labels, and color legend.",
-      "width": 400,
-      "height": 400,
-      "padding": 40,
-      "autosize": {"type": "none", "contains": "padding"},
-      "signals": [
-        {"name": "radius", "update": "width / 2"},
-        { "name": "usaOn",       "value": true,  "bind": {"input": "checkbox", "name": " USA "}},
-        { "name": "chinaOn",     "value": true,  "bind": {"input": "checkbox", "name": " China "}},
-        { "name": "gbOn",        "value": true,  "bind": {"input": "checkbox", "name": " Great Britain "}},
-        { "name": "japanOn",     "value": false, "bind": {"input": "checkbox", "name": " Japan "}},
-        { "name": "australiaOn", "value": false, "bind": {"input": "checkbox", "name": " Australia "}},
-        { "name": "noneSelected", "update": "!(usaOn || chinaOn || gbOn || japanOn || australiaOn)" },
-        { "name": "radialMax", "update": "(noneSelected || !data('stats').length || !isFinite(data('stats')[0].max)) ? 1 : data('stats')[0].max" }
-      ],
-      "data": [
-        {"name": "raw", "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country-radar.csv", "format": {"type": "csv"}},
-        {"name": "table", "source": "raw", "transform": [
-          { "type": "filter", "expr": "indexof(['USA','China','Great Britain','Japan','Australia'], datum.Country) >= 0" },
-          { "type": "filter", "expr": "(datum.Country == 'USA' && usaOn) || (datum.Country == 'China' && chinaOn) || (datum.Country == 'Great Britain' && gbOn) || (datum.Country == 'Japan' && japanOn) || (datum.Country == 'Australia' && australiaOn)" },
-          { "type": "fold", "fields": ["Num gold", "Num silver", "Num bronze", "Total"], "as": ["key", "value"] },
-          { "type": "formula", "as": "value", "expr": "toNumber(datum.value)" }
-        ]},
-        {"name": "keys", "source": "table", "transform": [{ "type": "aggregate", "groupby": ["key"] }]},
-        {"name": "stats", "source": "table", "transform": [{ "type": "aggregate", "fields": ["value"], "ops": ["max"], "as": ["max"] }]}
-      ],
-      "scales": [
-        {"name": "angular", "type": "point", "range": {"signal": "[-PI, PI]"}, "padding": 0.5, "domain": {"data": "table", "field": "key"}},
-        {"name": "radial", "type": "linear", "range": {"signal": "[0, radius]"}, "zero": true, "nice": false, "domain": {"signal": "[0, radialMax]"}, "domainMin": 0},
-        {"name": "color", "type": "ordinal", "domain": {"data": "table", "field": "Country"}, "range": {"scheme": "category10"}}
-      ],
-      "legends": [{"fill": "color", "title": "Country", "orient": "right", "encode": {"symbols": {"enter": {"fillOpacity": {"value": 0.5}, "stroke": {"value": "black"}, "strokeWidth": {"value": 1}}}}}],
-      "encode": { "enter": { "x": {"signal": "radius"}, "y": {"signal": "radius"} } },
-      "marks": [
-        {"type": "group", "name": "countries", "zindex": 1, "from": { "facet": { "data": "table", "name": "facet", "groupby": ["Country"] } },
-          "marks": [
-            {"type": "line", "name": "country-line", "from": {"data": "facet"},
-              "encode": {"enter": {"interpolate": {"value": "linear-closed"},
-                "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
-                "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
-                "stroke": {"scale": "color", "field": "Country"}, "strokeWidth": {"value": 1.5},
-                "fill": {"scale": "color", "field": "Country"}, "fillOpacity": {"value": 0.15}}}
-            },
-            {"type": "symbol", "from": {"data": "facet"},
-              "encode": {"enter": {
-                "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
-                "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
-                "size": {"value": 40}, "fill": {"scale": "color", "field": "Country"},
-                "stroke": {"value": "black"}, "strokeWidth": {"value": 0.5}}}
-            },
-            {"type": "text", "from": {"data": "facet"},
-              "encode": {"enter": {
-                "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
-                "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
-                "text": {"signal": "format(datum.value, '.0f')"}, "align": {"value": "center"},
-                "baseline": {"value": "middle"}, "dy": {"value": -10}, "fontSize": {"value": 10},
-                "fill": {"value": "black"}}}
-            }
-          ]
-        },
-        {"type": "rule", "name": "radial-grid", "from": {"data": "keys"}, "zindex": 0,
-          "encode": {"enter": {
-            "x": {"value": 0}, "y": {"value": 0},
-            "x2": {"signal": "radius * cos(scale('angular', datum.key))"},
-            "y2": {"signal": "radius * sin(scale('angular', datum.key))"},
-            "stroke": {"value": "lightgray"}, "strokeWidth": {"value": 1}}}
-        },
-        {"type": "text", "name": "key-label", "from": {"data": "keys"}, "zindex": 1,
-          "encode": {"enter": {
-            "x": {"signal": "(radius + 5) * cos(scale('angular', datum.key))"},
-            "y": {"signal": "(radius + 5) * sin(scale('angular', datum.key))"},
-            "text": {"field": "key"},
-            "align": [
-              { "test": "abs(scale('angular', datum.key)) > PI / 2", "value": "right" },
-              { "value": "left" }
-            ],
-            "baseline": [
-              { "test": "scale('angular', datum.key) > 0", "value": "top" },
-              { "test": "scale('angular', datum.key) == 0", "value": "middle" },
-              { "value": "bottom" }
-            ],
-            "fill": {"value": "black"}, "fontWeight": {"value": "bold"}
-          }}
-        },
-        {"type": "text", "name": "empty-hint",
-          "encode": {"enter": {"x": {"signal": "radius"}, "y": {"signal": "radius"},
-            "align": {"value": "center"}, "baseline": {"value": "middle"},
-            "fontSize": {"value": 12}, "fill": {"value": "#666"},
-            "text": {"signal": "noneSelected ? 'Select at least one country above' : ''"}}}
-        }
-      ]
-    };
-    vegaEmbed('#radarVis', radarSpec);
+    vegaEmbed('#vis1', specVis1, opts).catch(console.error);
+    vegaEmbed('#vis2', specVis2, opts).catch(console.error);
+    vegaEmbed('#vis3', specVis3, opts).catch(console.error);
+    vegaEmbed('#vis4', specVis4, opts).catch(console.error);
+    vegaEmbed('#vis5', specVis5, opts).catch(console.error);
+    vegaEmbed('#vis6', specVis6, opts).catch(console.error);
+    vegaEmbed('#vis7', specVis7, opts).catch(console.error);
   </script>
 
 </body>
