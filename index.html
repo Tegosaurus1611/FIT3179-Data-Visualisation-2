@@ -1,189 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Crime Rates in Malaysia</title>
-  
-  <!-- Import Vega & Vega-Lite -->
-  <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.1.0"></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.17.0"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paris Olympics 2024 — Story Dashboard</title>
 
-  <!-- Import pure.css -->
-  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css"
-    integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Google font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-  <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+  <!-- Vega & Vega-Lite scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/vega@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 
-  <!-- CSS file -->
-  <link rel="stylesheet" type="text/css" href="css/styles.css" media="all">
+  <style>
+    :root{
+      --brand:#1c1785;
+      --brand-dark:#0b0a4b;
+      --bg:#ffffff;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --radius:16px;
+      --shadow:0 8px 24px rgba(2, 6, 23, 0.08);
+    }
 
-  <!-- Bootstrap -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Sora', sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #fff 40%);
+      color: #0f172a;
+    }
+
+    .dashboard-container {
+      border: 4px solid var(--brand);
+      border-radius: 16px;
+      width: 85%;
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 50px 70px;
+      box-sizing: border-box;
+      background-color: #fff;
+      box-shadow: var(--shadow);
+    }
+
+    /* ✨ Keep heading exactly the same */
+    .olympic-heading {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      font-size: 60px;
+      font-weight: 600;
+      color: var(--brand-dark);
+      margin-bottom: 60px;
+      letter-spacing: -0.02em;
+      z-index: 0;
+    }
+    .olympic-heading img {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 280px;
+      opacity: 0.25;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+    .heading-text { display: flex; align-items: center; gap: 18px; }
+    .heading-text .dot {
+      width: 10px; height: 10px; background-color: var(--brand); border-radius: 50%;
+      box-shadow: 12px 0 0 var(--brand), -12px 0 0 var(--brand);
+      opacity: 0.85; animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse { 0%,100%{transform:scale(1);opacity:.8} 50%{transform:scale(1.3);opacity:1} }
+
+    .section { margin: 60px 0; }
+
+    .section p {
+      font-size: 17px;
+      max-width: 650px;
+      font-family: 'Sora', sans-serif;
+      color: var(--muted);
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    /* New: small left-justified viz headings matching text width */
+    .viz-heading {
+      font-size: 18px;
+      font-weight: "bold";
+      line-height: 1.3;
+      margin: 6px 0 10px;
+      font-family: 'Sora', sans-serif;
+      max-width: 650px;
+      text-align: left;
+      color: #0f172a;
+    }
+
+    .vis-container {
+      display: block;
+      width: 100%;
+      max-width: 650px;
+      margin: 0;
+      padding: 0;
+      min-height: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+      text-align: left;
+    }
+
+    .vis-container .vega-embed,
+    .vis-container canvas,
+    .vis-container svg {
+      display: block;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .note {
+      border: 1px solid #ffffff;
+      background: #eef2ff;
+      padding: 14px 18px;
+      border-radius: 12px;
+      box-shadow: inset 0 1px 0 rgb(255, 255, 255);
+    }
+
+    /* Nudge the note slightly left */
+    .grid .note {
+      margin-left: -10px;  /* adjust to -8px or -12px as desired */
+    }
+
+    .note[contenteditable="true"] {
+      outline: none;
+      min-height: 140px;
+      border: 1px dashed #ffffff;
+      border-radius: 10px;
+      padding: 10px;
+      background: #ffffff;
+    }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+      font-size: 14px;
+      color: var(--muted);
+      text-align: left;
+    }
+
+    @media (max-width: 960px) {
+      .olympic-heading { font-size: 40px; }
+      .grid { grid-template-columns: 1fr; }
+      .dashboard-container { padding: 40px 30px; }
+      .vis-container, .section p, .viz-heading { max-width: 100%; }
+      .grid .note { margin-left: 0; } /* reset on mobile */
+    }
+  </style>
 </head>
 
-<body style="background-color: #fdf0d5;">
-  <header>
-    <h1> 🚔 Crime Rates in Malaysia 🚔</h1>
-  </header>
+<body>
 
-  <nav class="navbar navbar-expand-lg navbar-dark">
-    <div class="container-fluid">
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-center" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item mx-5">
-            <a class="nav-link" href="#heading1" style="color: #fdf0d5;">Cases Map</a>
-          </li>
-          <li class="nav-item mx-5">
-            <a class="nav-link" href="#heading2" style="color: #fdf0d5;">Day/Night Safety</a>
-          </li>
-          <li class="nav-item mx-5">
-            <a class="nav-link" href="#heading3" style="color: #fdf0d5;">Vehicle Theft Types</a>
-          </li>
-          <li class="nav-item mx-5">
-            <a class="nav-link" href="#heading4" style="color: #fdf0d5;">Crime Types</a>
-          </li>
-          <li class="nav-item mx-5">
-            <a class="nav-link" href="#heading5" style="color: #fdf0d5;">State Assault & Property</a>
-          </li>
-        </ul>
+  <div class="dashboard-container">
+
+    <!-- ✨ Beautifully centered original heading (unchanged) -->
+    <div class="olympic-heading">
+      <img src="rings.png" alt="Olympic Rings">
+      <div class="heading-text">
+        <span class="dot"></span>
+        Paris Olympics 2024
+        <span class="dot"></span>
       </div>
     </div>
-  </nav>
 
-  <br>
-  <br>
-  <p>Welcome to my <b>Malaysian Crime Data Visualization</b> platform. <br>
-    Explore interactive charts and maps highlighting crime trends, including <b>break-ins</b>,<br>
-    <b>assaults</b>, and <b>thefts</b> across major cities. Analyze <b>daytime</b> and <b>nighttime safety</b>
-    metrics, and uncover <br>insights into crime rates over the years. Empower yourself with data to understand
-    and enhance safety in your community.
-  </p>
+    <!-- Storyline sections -->
+    <div class="section">
+      <p>
+        In <b>2024 Paris</b> hosted the <span style="color: rgb(43, 64, 203);">30th Summer Olympic games</span> from July 26th to August 2nd.
+        Athletes from around travelled to compete in a variety of sports across <span style="color: rgb(43, 64, 203);">48 disciplines</span>.
+      </p>
 
-  <br>
-  <br>
+      <p>
+        Including the practices, heats, elimination rounds, semis and finals the 2024 Olympics had around 3000 watchable events. The heatmap below outlines the daily event schedule by discipline.
+      </p>
 
-  <!-- Visualizations with Headings -->
-  <h2 id="heading1" class="subtitle">Telecommunication Fraud Trends Across Regions (2020)</h2>
-  <div class="container-xl">
-    <div id="vis1"></div>
-  </div>
-  <br>
-  <p>In 2020, <b>telecommunication fraud</b> surged in <b>wealthier regions</b> of Malaysia, particularly in areas like <b>Selangor</b> and <b>Kuala Lumpur</b>. <br>These regions, known for their robust <b>internet infrastructure</b> and widespread adoption of <b>digital transactions</b>, became prime targets for <b>fraudsters</b>.<br> Fraud schemes, including <b>phishing</b> and <b>social engineering</b> attacks, capitalized on the increasing reliance on online services, leading to significant <b>financial losses</b>.<br>
-
-  <br>
-  <h2 id="heading2" class="subtitle">Day / Night Safety in Malaysian Cities</h2>
-  <div class="flex-container" style="display: flex; flex-wrap: wrap; flex-direction: row; padding: 40px;">
-    <div id="vis2" style="flex: 0 1 60%; padding-left: 60px; padding-top: 35px;"></div> 
-    <div class="card" style="flex: 0 1 40%; padding: 2em; margin-top: 100px; background-color: #fdf0d5;"> 
-      <p><b>Safety</b> perceptions in Malaysia shift between <b>day</b> and <b>night</b>.<br><br>
-         Cities like <b>Kuala Lumpur</b> and <b>Johor Bahru</b> see a noticeable drop in safety after dark, while <b>George Town</b>, <b>Putrajaya</b>, and <b>Labuan</b> maintain higher safety levels both day and night.<br><br>
-          Efforts like <b>better lighting</b> and <b>police patrols</b> aim to enhance night safety across these cities.</p>
-    </div> 
-  </div>
-  
-  <br>
-  <br>
-  <br>
-  <h2 id="heading3" class="subtitle">Trends in Vehicle Thefts by Type Over the Years</h2>
-  <div class="flex-container" style="display: flex; flex-wrap: wrap; flex-direction: row-reverse; padding: 40px;">
-    <div id="vis3" style="flex: 0 1 60%; padding-left: 170px; padding-top: 35px;"></div>
-    <div class="card" style="flex: 0 1 40%; padding: 2em; margin-top: 40px; background-color: #fdf0d5;"> 
-      <p>From 2016 to 2022, <b>vehicle thefts</b> in Malaysia showed a consistent decline across all types.</br></br>
-        <b>Motorcycle thefts</b> saw the steepest drop, from <b>34,754 cases</b> in 2016 to <b>10,457</b> in 2022.
-        <b>Motorcar thefts</b> also significantly decreased, from <b>10,607</b> to <b>3,271</b> over the same period. 
-        <b>Lorry thefts</b> followed a similar trend, dropping from <b>3,050</b> to <b>718</b>.</br></br>This suggests improved 
-        <b>vehicle security</b> or <b>law enforcement</b> over time.</p>
+      <div id="vis1" class="vis-container"></div>
     </div>
-  </div>
-  
-  <h2 id="heading4" class="subtitle">Yearly Trends in Crime Type</h2>
-  <div class="flex-container" style="display: flex; flex-wrap: wrap; flex-direction: row; padding: 40px;">
-    <div id="vis4" style="flex: 0 1 60%; padding-left: 120px; padding-top: 35px;"></div> 
-    <div class="card" style="flex: 0 1 40%; padding: 2em; margin-top: 40px; background-color: #fdf0d5;"> 
-      <p>Between 2016 and 2022, Malaysia saw a <b>decline in most major crimes</b>.<br><br> <b>Assaults</b> decreased from <b>5,531</b> to <b>3,807</b>, and <b>homicides</b> dropped from <b>456</b> to <b>240</b>, indicating improved public safety.<br><br> <b>Robberies</b> showed mixed trends, with <b>armed gang robberies</b> declining sharply, while <b>unarmed gang robberies</b> fell more slowly.<br><br> <b>Burglary</b> rates decreased from <b>18,760</b> to <b>10,585</b>, and <b>thefts</b> dropped from <b>22,857</b> to <b>15,434</b>.
-    </div> 
-  </div>
-  
-  <h2 id="heading5" class="subtitle">Assault vs Property Crime Trends by State</h2>
-  <div class="flex-container" style="display: flex; flex-wrap: wrap; flex-direction: row-reverse; padding: 40px;">
-    <div id="vis5" style="flex: 0 1 60%; padding-left: 300px; padding-top: 40px;"></div>
-    <div class="card" style="flex: 0 1 40%; padding: 1em; margin-top: 40px; background-color: #fdf0d5;"> 
-      <p>In examining crime rates across states, Selangor stands out with the highest assault cases at <b>65,810</b> and an alarming property crime count of <b>221,622</b>.<br><br>
-        W.P. Kuala Lumpur follows with significant figures of <b>36,562</b> assaults and <b>109,760</b> property crimes, indicating urban challenges.<br><br>
-        In contrast, Perlis has the lowest assault cases at <b>1,462</b> and property crimes at <b>5,898</b>, reflecting a relatively safer environment.<br><br>
-        Overall, assault incidents appear to be concentrated in urban areas, while property crimes dominate across most states.</p>
+
+    <div class="section">
+      <p>Although the Olympics have many events, <i>not all events are medal-winning events</i>. Certain sports such as <span style="color: rgb(43, 64, 203);">Athletics and Swimming</span> have many more medal winning events compared to sports like Golf and Volleyball. </p>
+
+      <p>Medal winning events can also be broken down by <span style="color: rgb(203, 43, 192);">gen</span><span style="color: rgb(43, 64, 203);">der</span>. Explore and compare the breakdown of medal winning events by discipline below! </p>
+
+      <div id="vis2" class="vis-container"></div>
     </div>
+
+    <div class="section">
+      <p>Olympic champions are from all around the world! Explore how the number of <span style="color: rgb(212, 175, 55);">Gold</span>, <span style="color: rgb(127, 124, 124);">Silver</span> and <span style="color: rgb(205, 127, 50);">Bronze</span> medals vary by country and continent.</p>
+      <h3 class="viz-heading">Medal winners by country</h3>
+      <div id="vis3" class="vis-container"></div>
+    </div>
+
+    <div class="section grid">
+      <div>
+        <h3 class="viz-heading">High performing countries</h3>
+        <div id="vis4" class="vis-container"></div>
+      </div>
+      <div class="note" contenteditable="true">
+        <strong>The all-rounders</strong><br>
+        USA, China, Great Britain, France, Australia and Japan were the <b>top 6 performing countries</b> in terms of medal achievements. 
+        Athletes from these countries took home a well rounded bance of <b><span style="color: rgb(212, 175, 55);">Gold</span>, <span style="color: rgb(127, 124, 124);">Silver</span> and <span style="color: rgb(205, 127, 50);">Bronze</span></b> medals making their countries proud. 
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>A total of <b>10,500 Athletes</b> travelled from all around the world to compete at the Paris olympics. </p>
+
+        <p>It's interesting to note that countries with <span style="color: rgb(43, 64, 203);">higher percentages of Athletes</span> such as USA, China, Great Britain brought home <span style="color: rgb(43, 64, 203);">more medals overall</span> </p>
+
+        <h3 class="viz-heading">Percentage of total Athletes by country</h3>
+        <div id="vis7" class="vis-container"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>The stacked bar chart visualizes the distribution of medals across sports categories.</p>
+        <h3 class="viz-heading">Stacked Medals by Sport</h3>
+        <div id="vis5" class="vis-container"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div>
+        <p>The side-by-side bar chart compares male and female athlete performances across nations.</p>
+        <h3 class="viz-heading">Male vs Female Performance breakdown</h3>
+        <div id="vis6" class="vis-container"></div>
+      </div>
+    </div>
+
+    <footer>
+      &copy; 2024 Paris Olympics Data Visualizations. All rights reserved.
+    </footer>
   </div>
 
-  <br><br>
-  <p class="my" style="text-align: center; font-family: 'Times New Roman', Times, serif;">
-      <br />
-      <br />
-      <br />
-      <strong>&copy; Oct 2024,  Abbirami Jegan. All rights reserved.</strong>
-      <br />
-      <span style="font-size: smaller;">Data sourced from:</span>
-      <span style="font-size: smaller;">
-          <a href="https://www.numbeo.com/crime/country_result.jsp?country=Malaysia" target="_blank">Numbeo Crime Index - Malaysia</a>,
-          <a href="https://pqi.stats.gov.my/result.php?token=2d0988437a38d21ca0bbb8ace382801b" target="_blank">Malaysia's Crime Index Statistics</a>, 
-          and <a href="https://www.moha.gov.my/images/maklumat_bahagian/ipsom/jurnal/volume12/Vol_12_Num_2.pdf" target="_blank">Journal of Crime Statistics in Malaysia</a>
-      </span>
-      <br />
-      <br />
-      <br />
-  </p>
-  
   <script type="text/javascript">
-    // Load the Vega visualizations
-    var specVis1 = "js/map.vg.json";
-    var specVis2 = "js/scatter_plot.vg.json";
-    var specVis3 = "js/trellis_area.json";
-    var specVis4 = "js/radial_plot.json";
-    var specVis5 = "js/donut_chart.json";
+    var specVis1 = "Charts/heatmap.json";
+    var specVis2 = "Charts/area_chart.json";
+    var specVis3 = "Charts/proportional_symbol_map.json";
+    var specVis4 = "Charts/radar.json";
+    var specVis5 = "Charts/stacked_bar.json";
+    var specVis6 = "Charts/side-by-side_barchart.json";
+    var specVis7 = "Charts/chlmap.json";
 
-    vegaEmbed('#vis1', specVis1, { "actions": false }).then(function (result) {
-      // Access the Vega view instance as result.view
-    }).catch(console.error);
+    const opts = {
+      actions: false,
+      config: {
+        font: "Sora",
+        axis: { labelFont: "Sora", titleFont: "Sora" },
+        legend: { labelFont: "Sora", titleFont: "Sora" },
+        header: { labelFont: "Sora", titleFont: "Sora" },
+        title: { font: "Sora" }
+      }
+    };
 
-    vegaEmbed("#vis2", specVis2, { "actions": false }).then(function (result) {
-      // Access the Vega view instance as result.view        
-    }).catch(console.error);
-
-    vegaEmbed('#vis3', specVis3, { "actions": false }).then(function (result) {
-      // Access the Vega view instance as result.view
-    }).catch(console.error);
-
-    vegaEmbed('#vis4', specVis4, { "actions": false }).then(function (result) {
-      // Access the Vega view instance as result.view
-    }).catch(console.error);
-
-    vegaEmbed('#vis5', specVis5, { "actions": false }).then(function (result) {
-      // Access the Vega view instance as result.view
-    }).catch(console.error);
+    vegaEmbed('#vis1', specVis1, opts).catch(console.error);
+    vegaEmbed('#vis2', specVis2, opts).catch(console.error);
+    vegaEmbed('#vis3', specVis3, opts).catch(console.error);
+    vegaEmbed('#vis4', specVis4, opts).catch(console.error);
+    vegaEmbed('#vis5', specVis5, opts).catch(console.error);
+    vegaEmbed('#vis6', specVis6, opts).catch(console.error);
+    vegaEmbed('#vis7', specVis7, opts).catch(console.error);
   </script>
 
-  <!-- Include Bootstrap JS dependencies -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-    integrity="sha384-q8i/X+965DzO0rT3rC0rZrZz16ATy/2zpXyKh5c5W8XYANd7D0Rxs2ufd0jEvUem"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-    integrity="sha384-JZyZy0o6aT4zeEtdNQZsb5gW43G3Z4V1Pxr3JZc2tP0lXmn5A2Il3Hce1TZJoF5G"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-    crossorigin="anonymous"></script>
 </body>
-
 </html>
