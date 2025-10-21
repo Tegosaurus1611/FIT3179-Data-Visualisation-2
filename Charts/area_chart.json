@@ -1,0 +1,193 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "title": {
+      "text":"Medal winning events at the Olympics",
+      "fontSize": 18
+    },
+    "params": [
+      {
+        "name": "SportA",
+        "value": "Athletics",
+        "bind": {
+          "input": "select",
+          "options": [
+            "Athletics","Swimming","Wrestling","Judo","Shooting","Artistic Gymnastics","Rowing","Boxing",
+            "Cycling Track","Fencing","Canoe Sprint","Sailing","Weightlifting","Diving","Taekwondo",
+            "Canoe Slalom","Equestrian","Archery","Badminton","Table Tennis","Tennis","Cycling Road",
+            "Skateboarding","Sport Climbing","Triathlon","Artistic Swimming","Basketball","3x3 Basketball",
+            "Beach Volleyball","Breaking","Volleyball","Cycling BMX Freestyle","Cycling BMX Racing",
+            "Cycling Mountain Bike","Football","Golf","Handball","Hockey","Marathon Swimming",
+            "Modern Pentathlon","Rhythmic Gymnastics","Rugby Sevens","Surfing","Trampoline Gymnastics",
+            "Water Polo"
+          ]
+        }
+      },
+      {
+        "name": "SportB",
+        "value": "Tennis",
+        "bind": {
+          "input": "select",
+          "options": [
+            "Athletics","Swimming","Wrestling","Judo","Shooting","Artistic Gymnastics","Rowing","Boxing",
+            "Cycling Track","Fencing","Canoe Sprint","Sailing","Weightlifting","Diving","Taekwondo",
+            "Canoe Slalom","Equestrian","Archery","Badminton","Table Tennis","Tennis","Cycling Road",
+            "Skateboarding","Sport Climbing","Triathlon","Artistic Swimming","Basketball","3x3 Basketball",
+            "Beach Volleyball","Breaking","Volleyball","Cycling BMX Freestyle","Cycling BMX Racing",
+            "Cycling Mountain Bike","Football","Golf","Handball","Hockey","Marathon Swimming",
+            "Modern Pentathlon","Rhythmic Gymnastics","Rugby Sevens","Surfing","Trampoline Gymnastics",
+            "Water Polo"
+          ]
+        }
+      }
+    ],
+    "vconcat": [
+      {
+        "width": 730,
+        "height": 500,
+        "padding": {"bottom": 24},
+        "data": {
+          "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/events.csv",
+          "format": { "type": "csv" }
+        },
+        "transform": [
+          { "filter": "datum.sport && datum.sport !== ''" },
+          { "aggregate": [{ "op": "count", "as": "events" }], "groupby": ["sport"] },
+          { "calculate": "test(/^(Athletics|Swimming)$/i, datum.sport)", "as": "is_focus" },
+          { "sort": [{ "field": "events", "order": "descending" }] }
+        ],
+        "layer": [
+          {
+            "mark": { "type": "rule", "strokeWidth": 3 },
+            "encoding": {
+              "y": {
+                "field": "sport",
+                "type": "ordinal",
+                "sort": "-x",
+                "axis": { "title": "Discipline", "labelLimit": 180 }
+              },
+              "x": { "field": "events", "type": "quantitative", "title": "Number of Events" },
+              "x2": { "value": 0 },
+              "color": {
+                "condition": { "test": "datum.is_focus", "value": "#065CBD" },
+                "value": "#bbbbbb"
+              }
+            }
+          },
+          {
+            "mark": { "type": "point", "filled": true, "size": 110 },
+            "encoding": {
+              "y": { "field": "sport", "type": "ordinal", "sort": "-x" },
+              "x": { "field": "events", "type": "quantitative" },
+              "color": {
+                "condition": { "test": "datum.is_focus", "value": "#065CBD" },
+                "value": "#065CBD"
+              },
+              "tooltip": [
+                { "field": "sport", "title": "Discipline" },
+                { "field": "events", "title": "Number of Events" }
+              ]
+            }
+          },
+          {
+            "transform": [{ "aggregate": [{ "op": "count", "as": "one" }] }],
+            "mark": {
+              "type": "text",
+              "text": "Athletics and swimming make up 25% of all medal winning events",
+              "fontSize": 12,
+              "fontWeight": "normal",
+              "align": "left",
+              "dx": 220,
+              "dy": 12,
+              "color": "#000000"
+            },
+            "encoding": { "x": { "value": 50 }, "y": { "value": 20 } }
+          }
+        ],
+        "config": {
+          "view": { "stroke": null },
+          "axis": { "labelFontSize": 11, "titleFontSize": 13 }
+        }
+      },
+      {
+        "hconcat": [
+          {
+            "title": { "text": { "expr": "'Breakdown for ' + SportA" } },
+            "width": 340,
+            "height": 320,
+            "data": {
+              "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/events.csv",
+              "format": { "type": "csv" }
+            },
+            "transform": [
+              { "filter": "datum.sport && datum.sport !== ''" },
+              {
+                "calculate": "test(/mixed/i, datum.event) ? 'Mixed' : test(/women|women\\'s/i, datum.event) ? 'Women' : test(/men|men\\'s/i, datum.event) ? 'Men' : 'Open'",
+                "as": "gender_type"
+              },
+              { "filter": "lower(datum.sport) == lower(SportA)" },
+              { "aggregate": [{ "op": "count", "as": "count" }], "groupby": ["gender_type"] }
+            ],
+            "mark": { "type": "arc", "outerRadius": 140, "innerRadius": 55 },
+            "encoding": {
+              "theta": { "field": "count", "type": "quantitative", "stack": true },
+              "color": {
+                "field": "gender_type",
+                "type": "nominal",
+                "title": "Gender Type",
+                "scale": {
+                  "domain": ["Men","Women","Mixed","Open"],
+                  "range": ["#0057B8","#CF00A7","#FFD700","#808080"]
+                },
+                "sort": ["Men", "Women", "Mixed", "Open"],
+                "legend": { "orient": "bottom", "direction": "horizontal", "offset": 10 }
+              },
+              "tooltip": [
+                { "field": "gender_type", "title": "Gender Type" },
+                { "field": "count", "title": "Events" }
+              ]
+            }
+          },
+          {
+            "title": { "text": { "expr": "'Breakdown for ' + SportB" } },
+            "width": 340,
+            "height": 320,
+            "data": {
+              "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/events.csv",
+              "format": { "type": "csv" }
+            },
+            "transform": [
+              { "filter": "datum.sport && datum.sport !== ''" },
+              {
+                "calculate": "test(/mixed/i, datum.event) ? 'Mixed' : test(/women|women\\'s/i, datum.event) ? 'Women' : test(/men|men\\'s/i, datum.event) ? 'Men' : 'Open'",
+                "as": "gender_type"
+              },
+              { "filter": "lower(datum.sport) == lower(SportB)" },
+              { "aggregate": [{ "op": "count", "as": "count" }], "groupby": ["gender_type"] }
+            ],
+            "mark": { "type": "arc", "outerRadius": 140, "innerRadius": 55 },
+            "encoding": {
+              "theta": { "field": "count", "type": "quantitative", "stack": true },
+              "color": {
+                "field": "gender_type",
+                "type": "nominal",
+                "title": "Gender Type",
+                "scale": {
+                  "domain": ["Men","Women","Mixed","Open"],
+                  "range": ["#0057B8","#CF00A7","#FFD700","#808080"]
+                },
+                "sort": ["Men", "Women", "Mixed", "Open"],
+                "legend": { "orient": "bottom", "direction": "horizontal", "offset": 10 }
+              },
+              "tooltip": [
+                { "field": "gender_type", "title": "Gender Type" },
+                { "field": "count", "title": "Events" }
+              ]
+            }
+          }
+          
+        ],
+        "resolve": { "legend": { "color": "shared" } }
+      }
+    ],
+    "spacing": 40
+  }
