@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Paris Olympics 2024 — Story Dashboard</title>
+  <title>Paris Olympics 2024</title>
 
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
@@ -86,7 +86,6 @@
       text-align: left;
     }
 
-    /* New: small left-justified viz headings matching text width */
     .viz-heading {
       font-size: 18px;
       font-weight: "bold";
@@ -134,9 +133,8 @@
       box-shadow: inset 0 1px 0 rgb(255, 255, 255);
     }
 
-    /* Nudge the note slightly left */
     .grid .note {
-      margin-left: -10px;  /* adjust to -8px or -12px as desired */
+      margin-left: -10px;  
     }
 
     .note[contenteditable="true"] {
@@ -171,7 +169,6 @@
 
   <div class="dashboard-container">
 
-    <!-- ✨ Beautifully centered original heading (unchanged) -->
     <div class="olympic-heading">
       <img src="rings.png" alt="Olympic Rings">
       <div class="heading-text">
@@ -181,7 +178,6 @@
       </div>
     </div>
 
-    <!-- Storyline sections -->
     <div class="section">
       <p>
         In <b>2024 Paris</b> hosted the <span style="color: rgb(43, 64, 203);">30th Summer Olympic games</span> from July 26th to August 2nd.
@@ -234,22 +230,25 @@
 
     <div class="section">
       <div>
-        <p>The stacked bar chart visualizes the distribution of medals across sports categories.</p>
-        <h3 class="viz-heading">Stacked Medals by Sport</h3>
+        <p>Sports has no age and the Olympics is a true example of this with athletes of all ages competing across various disciplines. </p>
+
+        <p>The Paris Olympics <b>achieved full gender parity</b> for the first time in Olympic history, with an equal number of <span style="color: rgb(43, 64, 203);">male</span> and <span style="color: rgb(203, 43, 192);">female</span> participants. </p>
+          <h3 class="viz-heading">Athlete age distribution</h3>
         <div id="vis5" class="vis-container"></div>
       </div>
     </div>
 
     <div class="section">
       <div>
-        <p>The side-by-side bar chart compares male and female athlete performances across nations.</p>
+        <p>Explore and compare the proportion of medal winners by gender amongst the top performing countries!</p>
         <h3 class="viz-heading">Male vs Female Performance breakdown</h3>
         <div id="vis6" class="vis-container"></div>
       </div>
     </div>
 
     <footer>
-      &copy; 2024 Paris Olympics Data Visualizations. All rights reserved.
+      FIT3179 Data Visualisation 2 (Assignment 2) | Author: Tegpreet Kaur Gandhi | ID: 34468854 | Date: 21/10/25 |       
+      Data Sources used: https://www.olympics.com/en/olympic-games/paris-2024 | https://github.com/rythamsaini/Paris-Olympic-Games-2024 | https://www.kaggle.com/datasets/piterfm/paris-2024-olympic-summer-games/data  
     </footer>
   </div>
 
