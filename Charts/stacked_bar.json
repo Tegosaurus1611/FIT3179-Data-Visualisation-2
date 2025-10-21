@@ -1,0 +1,92 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 740,
+    "height": 500,
+    "data": {
+      "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/athletes.csv",
+      "format": {"type": "csv"}
+    },
+    "transform": [
+      {"calculate": "timeParse(datum.birth_date, '%d/%m/%Y')", "as": "bdate"},
+      {"calculate": "(toDate('2024-06-30') - datum.bdate) / (1000*60*60*24*365.25)", "as": "age"},
+      {
+        "calculate": "datum.age < 15 ? 'Under 15' : datum.age <= 20 ? '15-20' : datum.age <= 25 ? '21-25' : datum.age <= 30 ? '26-30' : datum.age <= 35 ? '31-35' : datum.age <= 40 ? '36-40' : datum.age <= 45 ? '41-45' : datum.age <= 50 ? '46-50' : '51+'",
+        "as": "age_cat"
+      },
+      {"aggregate": [{"op": "count", "as": "Athletes"}], "groupby": ["age_cat", "gender"]},
+      {"impute": "Athletes", "key": "age_cat", "groupby": ["gender"], "value": 0}
+    ],
+    "layer": [
+      {
+        "mark": {"type": "bar"},
+        "encoding": {
+          "x": {
+            "field": "age_cat",
+            "type": "ordinal",
+            "title": "Age Category",
+            "scale": {
+              "domain": [
+                "Under 15","15-20","21-25","26-30","31-35","36-40","41-45","46-50","51+"
+              ]
+            },
+            "axis": {"labelAngle": 0}
+          },
+          "y": {"field": "Athletes", "type": "quantitative", "title": "Number of Athletes"},
+          "color": {
+            "field": "gender",
+            "type": "nominal",
+            "title": "Gender",
+            "scale": {"range": ["#CF00A7","#0057B8"]}
+          },
+          "tooltip": [
+            {"field": "age_cat", "title": "Age Category"},
+            {"field": "gender", "title": "Gender"},
+            {"field": "Athletes", "title": "Number of Athletes"}
+          ]
+        }
+      },
+  
+      {
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "middle",
+          "dx": 50,                    
+          "dy": -10,               
+          "fontWeight": "normal",
+          "fontSize": 14,
+          "color": "#111827"
+        },
+        "transform": [{"filter": "datum.age_cat == '26-30'"}],
+        "encoding": {
+          "x": {"field": "age_cat", "type": "ordinal"},
+          "y": {"aggregate": "sum", "field": "Athletes"},
+          "text": {"value": "Approximately 40% of athletes were aged 26-30"}
+        }
+      },
+  
+      {
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "middle",
+          "dx": -40,                    
+          "dy": -10,               
+          "fontWeight": "normal",
+          "fontSize": 14,
+          "color": "#111827"
+        },
+        "transform": [{"filter": "datum.age_cat == '41-45'"}],
+        "encoding": {
+          "x": {"field": "age_cat", "type": "ordinal"},
+          "y": {"aggregate": "sum", "field": "Athletes"},
+          "text": {"value": "Only 2% of athelets were aged 40+"}
+        }
+      }
+      
+    ],
+    "config": {
+      "view": {"stroke": null},
+      "axis": {"labelFontSize": 12, "titleFontSize": 13}
+    }
+  }

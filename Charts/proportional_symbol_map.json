@@ -1,0 +1,118 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Paris 2024 medal distribution by country with Team USA annotation",
+    "width": 910,
+    "height": 450,
+    "background": "#eaf6ff",
+    "projection": {
+      "type": "equirectangular",
+      "center": {
+        "expr": "continentParam == 'Africa' ? [20, 0] : continentParam == 'Asia' ? [90, 30] : continentParam == 'Europe' ? [20, 55] : continentParam == 'North America' ? [-100, 40] : continentParam == 'South America' ? [-60, -15] : continentParam == 'Oceania' ? [140, -25] : [0, 0]"
+      },
+      "scale": {
+        "expr": "continentParam == 'World' ? 130 : continentParam == 'Africa' ? 240 : continentParam == 'Asia' ? 260 : continentParam == 'Europe' ? 460 : continentParam == 'North America' ? 250 : continentParam == 'South America' ? 290 : continentParam == 'Oceania' ? 440 : 130"
+      }
+    },
+    "params": [
+      {
+        "name": "medalParam",
+        "value": "Gold",
+        "bind": {"input": "select", "options": ["Gold", "Silver", "Bronze"], "name": "Medal: "}
+      },
+      {
+        "name": "continentParam",
+        "value": "World",
+        "bind": {"input": "select", "options": ["World","Africa","Asia","Europe","North America","South America","Oceania"], "name": "Continent: "}
+      }
+    ],
+    "layer": [
+      {
+        "data": {"graticule": {"step": [20, 20]}},
+        "mark": {"type": "geoshape", "stroke": "#bbd7f0", "strokeWidth": 0.6}
+      },
+      {
+        "data": {
+          "url": "https://cdn.jsdelivr.net/npm/vega-datasets@2.3.0/data/world-110m.json",
+          "format": {"type": "topojson", "feature": "countries"}
+        },
+        "mark": {
+          "type": "geoshape",
+          "fill": "#e3e4e8",
+          "stroke": "#5c5c5c",
+          "strokeWidth": 0.5
+        }
+      },
+      {
+        "data": {
+          "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country_medals.csv"
+        },
+        "transform": [
+          {"fold": ["Gold", "Silver", "Bronze"], "as": ["Medal", "Count"]},
+          {"filter": "datum.Medal === medalParam"},
+          {"calculate": "toNumber(datum.Count)", "as": "CountNum"},
+          {
+            "lookup": "Country",
+            "from": {
+              "data": {
+                "url": "https://cdn.jsdelivr.net/gh/gavinr/world-countries-centroids@v1/dist/countries.csv"
+              },
+              "key": "COUNTRY",
+              "fields": ["latitude", "longitude", "ISO"]
+            }
+          },
+          {"filter": "continentParam == 'World' || datum.Continent == continentParam"},
+          {"filter": "isValid(datum.latitude) && isValid(datum.longitude)"}
+        ],
+        "mark": {"type": "circle", "opacity": 0.85, "stroke": "white"},
+        "encoding": {
+          "longitude": {"field": "longitude", "type": "quantitative"},
+          "latitude": {"field": "latitude", "type": "quantitative"},
+          "size": {
+            "field": "CountNum",
+            "type": "quantitative",
+            "title": "Medals",
+            "legend": null,
+            "scale": {"range": [0, 1800], "domainMin": 0}
+          },
+          "tooltip": [
+            {"field": "Country", "type": "nominal", "title": "Country"},
+            {"field": "Continent", "type": "nominal"},
+            {"field": "Medal", "type": "nominal"},
+            {"field": "CountNum", "type": "quantitative", "title": "Medal count"}
+          ],
+          "color": {
+            "field": "Medal",
+            "type": "nominal",
+            "scale": {
+              "domain": ["Gold", "Silver", "Bronze"],
+              "range": ["#F7B21E", "#B0B7C3", "#cd7f32"]
+            },
+            "legend": null
+          }
+        }
+      },
+      {
+        "data": {
+          "values": [
+            {"longitude": -150, "latitude": 15, "label": "🏅 Team USA won the most total medals"}
+          ]
+        },
+        "mark": {
+          "type": "text",
+          "align": "left",
+          "baseline": "middle",
+          "dx": 7,
+          "dy": -25,
+          "fontSize": 13,
+          "fontWeight": "bold",
+          "color": "#333"
+        },
+        "encoding": {
+          "longitude": {"field": "longitude", "type": "quantitative"},
+          "latitude": {"field": "latitude", "type": "quantitative"},
+          "text": {"field": "label", "type": "nominal"}
+        }
+      }
+    ]
+  }
+  

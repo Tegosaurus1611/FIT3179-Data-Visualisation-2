@@ -1,0 +1,221 @@
+{
+    "$schema": "https://vega.github.io/schema/vega/v6.json",
+    "description": "Radar chart of Olympic medals by country (gold, silver, bronze).",
+    "width": 700,
+    "height": 550,
+    "padding": {"left": 40, "top": 40, "right": 180, "bottom": 40},
+    "autosize": {"type": "none", "contains": "padding"},
+  
+    "signals": [
+      {"name": "radius", "update": "width / 2"}
+    ],
+  
+    "data": [
+      {
+        "name": "source",
+        "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/country-radar.csv",
+        "format": {"type": "csv"}
+      },
+      {
+        "name": "table",
+        "source": "source",
+        "transform": [
+          {"type": "fold", "fields": ["Num gold", "Num silver", "Num bronze"], "as": ["category", "value"]},
+          {"type": "formula", "as": "key", "expr": "datum.Country"}
+        ]
+      },
+      {
+        "name": "keys",
+        "source": "table",
+        "transform": [{"type": "aggregate", "groupby": ["key"]}]
+      },
+      {
+        "name": "chinaGold",
+        "source": "table",
+        "transform": [
+          {"type": "filter", "expr": "datum.category === 'Num gold' && datum.key === 'China'"}
+        ]
+      }
+    ],
+  
+    "scales": [
+      {
+        "name": "angular",
+        "type": "point",
+        "range": {"signal": "[-PI, PI]"},
+        "padding": 0.5,
+        "domain": {"data": "table", "field": "key"}
+      },
+      {
+        "name": "radial",
+        "type": "linear",
+        "range": {"signal": "[0, radius]"},
+        "zero": true,
+        "nice": false,
+        "domain": {"data": "table", "field": "value"},
+        "domainMin": 0
+      },
+      {
+        "name": "medalColor",
+        "type": "ordinal",
+        "domain": ["Num gold", "Num silver", "Num bronze"],
+        "range": ["#D4AF37", "#C0C0C0", "#CD7F32"]
+      }
+    ],
+  
+    "encode": {
+      "enter": {
+        "x": {"signal": "radius"},
+        "y": {"signal": "radius"}
+      }
+    },
+  
+    "marks": [
+      {
+        "type": "group",
+        "name": "categories",
+        "zindex": 1,
+        "from": {"facet": {"data": "table", "name": "facet", "groupby": ["category"]}},
+        "marks": [
+          {
+            "type": "line",
+            "name": "category-line",
+            "from": {"data": "facet"},
+            "encode": {
+              "enter": {
+                "interpolate": {"value": "linear-closed"},
+                "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
+                "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
+                "stroke": {"scale": "medalColor", "field": "category"},
+                "strokeWidth": {"value": 2},
+                "fill": {"scale": "medalColor", "field": "category"},
+                "fillOpacity": {"value": 0.15}
+              }
+            }
+          },
+          {
+            "type": "symbol",
+            "name": "points",
+            "from": {"data": "facet"},
+            "encode": {
+              "enter": {
+                "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
+                "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
+                "size": {"value": 64},
+                "stroke": {"scale": "medalColor", "field": "category"},
+                "fill": {"value": "white"},
+                "strokeWidth": {"value": 2},
+                "tooltip": {
+                  "signal": "{'Country': datum.key, 'Medal': datum.category === 'Num gold' ? 'Gold' : datum.category === 'Num silver' ? 'Silver' : 'Bronze', 'Count': datum.value}"
+                }
+              },
+              "hover": {"size": {"value": 144}}
+            }
+          },
+          {
+            "type": "text",
+            "name": "value-text",
+            "from": {"data": "category-line"},
+            "encode": {
+              "enter": {
+                "x": {"signal": "datum.x"},
+                "y": {"signal": "datum.y"},
+                "text": {"signal": "datum.datum.value"},
+                "align": {"value": "center"},
+                "baseline": {"value": "middle"},
+                "fill": {"value": "black"},
+                "fontSize": {"value": 11}
+              }
+            }
+          }
+        ]
+      },
+  
+      {
+        "type": "rule",
+        "from": {"data": "chinaGold"},
+        "encode": {
+          "enter": {
+            "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key))"},
+            "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key))"},
+            "x2": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key)) + 50"},
+            "y2": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key)) - 40"},
+            "stroke": {"value": "#555"},
+            "strokeWidth": {"value": 1.5}
+          }
+        }
+      },
+      {
+        "type": "text",
+        "from": {"data": "chinaGold"},
+        "encode": {
+          "enter": {
+            "x": {"signal": "scale('radial', datum.value) * cos(scale('angular', datum.key)) + 55"},
+            "y": {"signal": "scale('radial', datum.value) * sin(scale('angular', datum.key)) - 50"},
+            "text": {"value": "China tied with USA  for the most number of Gold medals"},
+            "fill": {"value": "#222"},
+            "fontSize": {"value": 12},
+            "fontWeight": {"value": "normal"},
+            "lineBreak": {"value": "  "},
+            "align": {"value": "left"}
+          }
+        }
+      },
+  
+      {
+        "type": "rule",
+        "name": "radial-grid",
+        "from": {"data": "keys"},
+        "zindex": 0,
+        "encode": {
+          "enter": {
+            "x": {"value": 0},
+            "y": {"value": 0},
+            "x2": {"signal": "radius * cos(scale('angular', datum.key))"},
+            "y2": {"signal": "radius * sin(scale('angular', datum.key))"},
+            "stroke": {"value": "lightgray"},
+            "strokeWidth": {"value": 1}
+          }
+        }
+      },
+      {
+        "type": "text",
+        "name": "key-label",
+        "from": {"data": "keys"},
+        "zindex": 1,
+        "encode": {
+          "enter": {
+            "x": {"signal": "(radius + 15) * cos(scale('angular', datum.key))"},
+            "y": {"signal": "(radius + 15) * sin(scale('angular', datum.key))"},
+            "text": {"field": "key"},
+            "align": [
+              {"test": "abs(scale('angular', datum.key)) > PI / 2", "value": "right"},
+              {"value": "left"}
+            ],
+            "baseline": [
+              {"test": "scale('angular', datum.key) > 0", "value": "top"},
+              {"test": "scale('angular', datum.key) == 0", "value": "middle"},
+              {"value": "bottom"}
+            ],
+            "fill": {"value": "black"},
+            "fontWeight": {"value": "bold"},
+            "fontSize": {"value": 12}
+          }
+        }
+      },
+      {
+        "type": "line",
+        "name": "outer-line",
+        "from": {"data": "keys"},
+        "encode": {
+          "enter": {
+            "interpolate": {"value": "linear-closed"},
+            "x": {"signal": "radius * cos(scale('angular', datum.key))"},
+            "y": {"signal": "radius * sin(scale('angular', datum.key))"},
+            "stroke": {"value": "lightgray"},
+            "strokeWidth": {"value": 1}
+          }
+        }
+      }
+    ]
+  }

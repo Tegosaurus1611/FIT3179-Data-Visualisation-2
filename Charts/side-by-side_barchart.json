@@ -1,0 +1,142 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "description": "Paris 2024 medal winners by gender for selected countries.",
+    "data": {
+      "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/medallists.csv",
+      "format": {"type": "csv"}
+    },
+
+    "params": [
+      {
+        "name": "country1",
+        "value": "United States",
+        "bind": {
+          "input": "select",
+          "name": "Country 1: ",
+          "options": [
+            "United States","China","Japan","Australia","Great Britain","France","Germany",
+            "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+          ]
+        }
+      },
+      {
+        "name": "country2",
+        "value": "China",
+        "bind": {
+          "input": "select",
+          "name": "Country 2: ",
+          "options": [
+            "United States","China","Japan","Australia","Great Britain","France","Germany",
+            "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+          ]
+        }
+      },
+      {
+        "name": "country3",
+        "value": "Japan",
+        "bind": {
+          "input": "select",
+          "name": "Country 3: ",
+          "options": [
+            "United States","China","Japan","Australia","Great Britain","France","Germany",
+            "Canada","Italy","Netherlands","Korea","Spain","Brazil","India","Sweden","Norway"
+          ]
+        }
+      }
+    ],
+
+    "concat": [
+      {
+        "title": { "text": { "expr": "'Breakdown for ' + country1" } },
+        "transform": [{"filter": "datum.country === country1"}],
+        "mark": {"type": "bar", "cornerRadiusEnd": 2},
+        "encoding": {
+          "x": {
+            "field": "gender",
+            "type": "nominal",
+            "sort": ["Male","Female"],
+            "axis": {"labelAngle": 0},
+            "title": null
+          },
+          "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+          "color": {
+            "field": "gender",
+            "type": "nominal",
+            "scale": {"domain": ["Male","Female"], "range": ["#0057B8","#CF00A7"]},
+            "legend": null
+          },
+          "tooltip": [
+            {"field": "country_long", "title": "Country"},
+            {"field": "gender", "title": "Gender"},
+            {"aggregate": "count", "title": "Medals"}
+          ]
+        },
+        "width": 240,
+        "height": 240
+      },
+      {
+        "title": { "text": { "expr": "'Breakdown for ' + country2" } },
+        "transform": [{"filter": "datum.country === country2"}],
+        "mark": {"type": "bar", "cornerRadiusEnd": 2},
+        "encoding": {
+          "x": {
+            "field": "gender",
+            "type": "nominal",
+            "sort": ["Male","Female"],
+            "axis": {"labelAngle": 0},
+            "title": null
+          },
+          "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+          "color": {
+            "field": "gender",
+            "type": "nominal",
+            "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
+            "legend": null
+          },
+          "tooltip": [
+            {"field": "country_long", "title": "Country"},
+            {"field": "gender", "title": "Gender"},
+            {"aggregate": "count", "title": "Medals"}
+          ]
+        },
+        "width": 240,
+        "height": 240
+      },
+      {
+        "title": { "text": { "expr": "'Breakdown for ' + country3" } },
+        "transform": [{"filter": "datum.country === country3"}],
+        "mark": {"type": "bar", "cornerRadiusEnd": 2},
+        "encoding": {
+          "x": {
+            "field": "gender",
+            "type": "nominal",
+            "sort": ["Male","Female"],
+            "axis": {"labelAngle": 0},
+            "title": null
+          },
+          "y": {"aggregate": "count", "type": "quantitative", "title": "Medals"},
+          "color": {
+            "field": "gender",
+            "type": "nominal",
+            "scale": {"domain": ["Male","Female"], "range": ["#3b82f6","#ec4899"]},
+            "legend": null
+          },
+          "tooltip": [
+            {"field": "country_long", "title": "Country"},
+            {"field": "gender", "title": "Gender"},
+            {"aggregate": "count", "title": "Medals"}
+          ]
+        },
+        "width": 240,
+        "height": 240
+      }
+    ],
+
+    "columns": 3,
+
+    "config": {
+      "view": {"stroke": null},
+      "axis": {"grid": false},
+      "title": {"fontSize": 14, "anchor": "start"}
+    }
+  }

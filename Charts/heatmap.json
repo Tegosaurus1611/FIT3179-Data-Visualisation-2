@@ -1,0 +1,102 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+    "description": "Olympics event schedule by sport category with a total row under all sports.",
+    "title": {
+      "text": "Daily Event Schedule",
+      "anchor": "start",
+      "fontSize": 18
+    },
+    "data": {
+      "url": "https://raw.githubusercontent.com/Tegosaurus1611/FIT3179-Data-Visualisation-2/main/Data/schedules.csv"
+    },
+  
+    "transform": [
+      {
+        "filter": "toDate(datum.start_date) >= toDate('2024-07-26') && toDate(datum.start_date) <= toDate('2024-08-11')"
+      },
+      {"timeUnit": "yearmonthdate", "field": "start_date", "as": "day"},
+      {
+        "aggregate": [{"op": "count", "as": "events"}],
+        "groupby": ["day", "discipline"]
+      },
+      {
+        "joinaggregate": [{"op": "sum", "field": "events", "as": "total_events"}],
+        "groupby": ["day"]
+      },
+      {"calculate": "datum.discipline", "as": "category"},
+      {
+        "unionWith": [
+          {
+            "source": "data",
+            "transform": [
+              {
+                "filter": "toDate(datum.start_date) >= toDate('2024-07-26') && toDate(datum.start_date) <= toDate('2024-08-11')"
+              },
+              {"timeUnit": "yearmonthdate", "field": "start_date", "as": "day"},
+              {
+                "aggregate": [{"op": "count", "as": "events"}],
+                "groupby": ["day"]
+              },
+              {"calculate": "'Total'", "as": "discipline"}
+            ]
+          }
+        ]
+      }
+    ],
+  
+    "mark": {"type": "rect", "stroke": "white", "strokeWidth": 1},
+  
+    "encoding": {
+      "x": {
+        "field": "day",
+        "type": "temporal",
+        "timeUnit": "yearmonthdate",
+        "title": "Date",
+        "axis": {"format": "%b %d", "labelAngle": 0}
+      },
+      "y": {
+        "field": "discipline",
+        "type": "nominal",
+        "title": "Sport",
+        "sort": "ascending"
+      },
+      "color": {
+        "field": "events",
+        "type": "quantitative",
+        "title": "Events starting",
+        "scale": {"scheme": "blues"}
+      },
+      "tooltip": [
+        {"field": "discipline", "type": "nominal", "title": "Sport"},
+        {"field": "day", "type": "temporal", "title": "Date"},
+        {"field": "events", "type": "quantitative", "title": "Starts"}
+      ]
+    },
+  
+    "width": 650,
+    "height": {"step": 15},
+  
+    "config": {
+      "font": "Sora",
+      "view": {"stroke": null},
+      "axis": {
+        "domain": false,
+        "tickSize": 0,
+        "labelFontSize": 10,
+        "titleFontSize": 12,
+        "labelFont": "Sora",
+        "titleFont": "Sora"
+      },
+      "legend": {
+        "labelFont": "Sora",
+        "titleFont": "Sora"
+      },
+      "header": {
+        "labelFont": "Sora",
+        "titleFont": "Sora"
+      },
+      "title": {
+        "font": "Sora"
+      }
+    }
+  }
